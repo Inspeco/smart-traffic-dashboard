@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart City Traffic Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin: 0 0 10px 0;
+        }
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .status-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .status-value {
+            font-size: 3em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+        .status-label {
+            color: #666;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .sensor-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        .sensor-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .sensor-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .metric-label {
+            color: #666;
+        }
+        .metric-value {
+            font-weight: bold;
+        }
+        .status-heavy { color: #ff4444; }
+        .status-moderate { color: #ffaa00; }
+        .status-light { color: #00C851; }
+        .live {
+            display: inline-block;
+            padding: 5px 15px;
+            background: #00C851;
+            color: white;
+            border-radius: 20px;
+            font-size: 0.9em;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚦 Smart City Traffic Management System</h1>
+            <p>Real-time Traffic Monitoring Dashboard - ICT200 Assessment 3</p>
+            <span class="live">● LIVE</span>
+        </div>
+
+        <div class="status-grid">
+            <div class="status-card">
+                <div class="status-label">Active Sensors</div>
+                <div class="status-value" id="sensors">3</div>
+            </div>
+            <div class="status-card">
+                <div class="status-label">Average Speed</div>
+                <div class="status-value"><span id="speed">45</span></div>
+                <div class="status-label">km/h</div>
+            </div>
+            <div class="status-card">
+                <div class="status-label">Total Vehicles</div>
+                <div class="status-value" id="vehicles">247</div>
+            </div>
+            <div class="status-card">
+                <div class="status-label">Congestion</div>
+                <div class="status-value status-moderate" id="congestion">Moderate</div>
+            </div>
+        </div>
+
+        <h2 style="color: white; text-align: center;">Traffic Sensor Status</h2>
+        <div class="sensor-grid" id="sensorGrid"></div>
+    </div>
+
+    <script>
+        // Generate mock traffic data
+        function generateTrafficData() {
+            const locations = ['Main Street', 'Highway 101', 'Downtown'];
+            const hour = new Date().getHours();
+            const isRushHour = (hour >= 7 && hour <= 9) || (hour >= 17 && hour <= 19);
+            
+            return locations.map(location => ({
+                name: `Traffic Sensor - ${location}`,
+                location: location,
+                speed: isRushHour ? 
+                    Math.floor(Math.random() * 30) + 10 : 
+                    Math.floor(Math.random() * 40) + 40,
+                vehicles: isRushHour ? 
+                    Math.floor(Math.random() * 100) + 100 : 
+                    Math.floor(Math.random() * 50) + 30,
+                status: 'Active',
+                lastUpdate: new Date().toLocaleTimeString()
+            }));
+        }
+
+        // Update dashboard
+        function updateDashboard() {
+            const sensors = generateTrafficData();
+            
+            // Calculate averages
+            const avgSpeed = Math.round(
+                sensors.reduce((sum, s) => sum + s.speed, 0) / sensors.length
+            );
+            const totalVehicles = sensors.reduce((sum, s) => sum + s.vehicles, 0);
+            
+            // Update status cards
+            document.getElementById('speed').textContent = avgSpeed;
+            document.getElementById('vehicles').textContent = totalVehicles;
+            
+            // Update congestion level
+            const congestionEl = document.getElementById('congestion');
+            if (avgSpeed < 20) {
+                congestionEl.textContent = 'Heavy';
+                congestionEl.className = 'status-value status-heavy';
+            } else if (avgSpeed < 40) {
+                congestionEl.textContent = 'Moderate';
+                congestionEl.className = 'status-value status-moderate';
+            } else {
+                congestionEl.textContent = 'Light';
+                congestionEl.className = 'status-value status-light';
+            }
+            
+            // Update sensor grid
+            const sensorGrid = document.getElementById('sensorGrid');
+            sensorGrid.innerHTML = sensors.map(sensor => {
+                const congestion = sensor.speed < 20 ? 'Heavy' : 
+                                 sensor.speed < 40 ? 'Moderate' : 'Light';
+                const statusClass = sensor.speed < 20 ? 'status-heavy' : 
+                                  sensor.speed < 40 ? 'status-moderate' : 'status-light';
+                
+                return `
+                    <div class="sensor-card">
+                        <div class="sensor-name">${sensor.name}</div>
+                        <div class="metric">
+                            <span class="metric-label">Location:</span>
+                            <span class="metric-value">${sensor.location}</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Speed:</span>
+                            <span class="metric-value">${sensor.speed} km/h</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Vehicles:</span>
+                            <span class="metric-value">${sensor.vehicles}</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Congestion:</span>
+                            <span class="metric-value ${statusClass}">${congestion}</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Last Update:</span>
+                            <span class="metric-value">${sensor.lastUpdate}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Initial load and refresh every 5 seconds
+        updateDashboard();
+        setInterval(updateDashboard, 5000);
+    </script>
+</body>
+</html>
