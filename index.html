@@ -3,233 +3,337 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI-Powered Smart City Traffic Management</title>
+    <title>AI-Powered Smart City Traffic Management - Sydney</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
     <style>
-        /* Enhanced styling with animations and gradients */
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --success: #00c851;
+            --warning: #ffaa00;
+            --danger: #ff4444;
+            --light: #f8f9fa;
+            --dark: #343a40;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
         body {
             font-family: 'Segoe UI', system-ui, sans-serif;
-            margin: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             min-height: 100vh;
-        }
-        .dashboard-container {
-            max-width: 1600px;
-            margin: 0 auto;
             padding: 20px;
         }
+        
+        .dashboard-container {
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+        
         .header {
             background: rgba(255, 255, 255, 0.98);
             border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 30px;
+            padding: 25px 30px;
+            margin-bottom: 25px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
         }
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+        
+        .header h1 {
+            font-size: 1.8rem;
+            color: var(--dark);
+            margin: 0;
         }
-        .metric-card {
-            background: white;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-            transition: transform 0.3s, box-shadow 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-        .metric-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
-        }
-        .metric-card.ai-powered::before {
-            content: "AI";
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.7em;
-            font-weight: bold;
-        }
-        .prediction-panel {
-            background: white;
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-        }
-        #trafficMap {
-            height: 500px;
-            border-radius: 12px;
-            margin-bottom: 30px;
-        }
-        .alert-banner {
-            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            display: none;
-            animation: slideIn 0.5s;
-        }
-        .alert-banner.active {
-            display: block;
-        }
-        @keyframes slideIn {
-            from { transform: translateY(-100%); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
+        
         .live-indicator {
             display: inline-flex;
             align-items: center;
             gap: 8px;
             padding: 8px 16px;
-            background: #00c851;
+            background: var(--success);
             color: white;
             border-radius: 20px;
             font-size: 0.9em;
             animation: pulse 2s infinite;
         }
+        
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.8; }
         }
-        .container {
+        
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .card-title {
+            font-size: 1.3rem;
+            color: var(--dark);
+            margin: 0;
+        }
+        
+        .ai-badge {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.7em;
+            font-weight: bold;
+        }
+        
+        .metric-value {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+        
+        .primary-color {
+            color: var(--primary);
+        }
+        
+        .success-color {
+            color: var(--success);
+        }
+        
+        .warning-color {
+            color: var(--warning);
+        }
+        
+        .danger-color {
+            color: var(--danger);
+        }
+        
+        .metric-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        
+        #trafficMap {
+            height: 500px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        }
+        
+        .recommendation-item {
+            padding: 15px;
+            margin: 15px 0;
+            background: var(--light);
+            border-radius: 10px;
+            border-left: 4px solid;
+        }
+        
+        .recommendation-high {
+            border-left-color: var(--danger);
+        }
+        
+        .recommendation-medium {
+            border-left-color: var(--warning);
+        }
+        
+        .recommendation-low {
+            border-left-color: var(--success);
+        }
+        
+        .anomaly-alert {
+            padding: 15px;
+            margin: 15px 0;
+            background: #ffebee;
+            border-radius: 10px;
+            border-left: 4px solid var(--danger);
+        }
+        
+        .prediction-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
             margin-top: 20px;
         }
-        .container > div {
-            background: white;
+        
+        .prediction-item {
+            text-align: center;
+            padding: 15px;
+            background: var(--light);
             border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .prediction-time {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .prediction-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        @media (max-width: 768px) {
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
         }
     </style>
 </head>
 <body>
     <div class="dashboard-container">
         <div class="header">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <h1>🚦 AI-Powered Smart City Traffic Management</h1>
-                    <p style="color: #666; margin-top: 10px;">
-                        Real-time monitoring with ML predictions • ICT200 Assessment 3
-                    </p>
+            <div>
+                <h1>🚦 AI-Powered Traffic Management - Sydney</h1>
+                <p style="color: #666; margin-top: 8px;">
+                    Real-time monitoring with ML predictions • ICT200 Assessment 3
+                </p>
+            </div>
+            <div class="live-indicator">
+                <span style="width: 8px; height: 8px; background: white; border-radius: 50%;"></span>
+                LIVE DATA
+            </div>
+        </div>
+
+        <div class="grid-container">
+            <!-- Real-time Metrics -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">📊 Real-time Metrics</h2>
                 </div>
-                <div class="live-indicator">
-                    <span style="width: 8px; height: 8px; background: white; border-radius: 50%; animation: blink 1s infinite;"></span>
-                    LIVE DATA
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                    <div>
+                        <div class="metric-value primary-color" id="activeSensors">3</div>
+                        <div class="metric-label">Active Sensors</div>
+                    </div>
+                    <div>
+                        <div class="metric-value primary-color" id="avgSpeed">56</div>
+                        <div class="metric-label">Avg Speed (km/h)</div>
+                    </div>
+                    <div>
+                        <div class="metric-value primary-color" id="totalVehicles">1,247</div>
+                        <div class="metric-label">Total Vehicles</div>
+                    </div>
+                    <div>
+                        <div class="metric-value success-color" id="congestionLevel">Light</div>
+                        <div class="metric-label">Congestion Level</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Predictions -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">🤖 AI Traffic Predictions</h2>
+                    <span class="ai-badge">AI</span>
+                </div>
+                <div class="prediction-grid" id="predictionContainer">
+                    <!-- Predictions will be populated here -->
+                </div>
+            </div>
+
+            <!-- AI Recommendations -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">💡 AI Recommendations</h2>
+                    <span class="ai-badge">AI</span>
+                </div>
+                <div id="recommendations">
+                    <!-- Recommendations will be populated here -->
+                </div>
+            </div>
+
+            <!-- Anomaly Detection -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">🚨 Anomaly Detection</h2>
+                    <span class="ai-badge">AI</span>
+                </div>
+                <div id="anomalyAlerts">
+                    No anomalies detected
                 </div>
             </div>
         </div>
 
-        <div class="alert-banner" id="alertBanner">
-            ⚠️ <strong>AI Alert:</strong> <span id="alertText">Heavy congestion predicted in 15 minutes at Main Street</span>
-        </div>
-
-        <!-- Real-time Metrics -->
-        <div class="metrics-grid">
-            <div class="metric-card">
-                <div style="color: #666; font-size: 0.9em; text-transform: uppercase;">Active Sensors</div>
-                <div style="font-size: 3em; font-weight: bold; color: #667eea; margin: 10px 0;" id="activeSensors">3</div>
-                <div style="color: #999; font-size: 0.85em;">All systems operational</div>
-            </div>
-            
-            <div class="metric-card">
-                <div style="color: #666; font-size: 0.9em; text-transform: uppercase;">Current Avg Speed</div>
-                <div style="font-size: 3em; font-weight: bold; color: #667eea; margin: 10px 0;">
-                    <span id="avgSpeed">56</span>
-                </div>
-                <div style="color: #999; font-size: 0.85em;">km/h citywide</div>
-            </div>
-            
-            <div class="metric-card">
-                <div style="color: #666; font-size: 0.9em; text-transform: uppercase;">Total Vehicles</div>
-                <div style="font-size: 3em; font-weight: bold; color: #667eea; margin: 10px 0;" id="totalVehicles">1,247</div>
-                <div style="color: #999; font-size: 0.85em;">Last 5 minutes</div>
-            </div>
-            
-            <div class="metric-card ai-powered">
-                <div style="color: #666; font-size: 0.9em; text-transform: uppercase;">AI Congestion Level</div>
-                <div style="font-size: 3em; font-weight: bold; color: #00c851; margin: 10px 0;" id="congestionLevel">Light</div>
-                <div style="color: #999; font-size: 0.85em;">ML confidence: <span id="confidence">94%</span></div>
-            </div>
-        </div>
-
-        <!-- AI Predictions Panel -->
-        <div class="prediction-panel">
-            <h2>🤖 AI Traffic Predictions (Next 30 Minutes)</h2>
-            <canvas id="predictionChart"></canvas>
-        </div>
-
-        <!-- Interactive Map -->
+        <!-- Traffic Map -->
         <div id="trafficMap"></div>
 
-        <!-- Traffic Trends -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div style="background: white; border-radius: 12px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.08);">
-                <h3>📊 Real-time Speed Trends</h3>
-                <canvas id="speedChart"></canvas>
+        <!-- Traffic Charts -->
+        <div class="grid-container">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">📈 Speed Trends</h2>
+                </div>
+                <canvas id="speedChart" height="250"></canvas>
             </div>
-            <div style="background: white; border-radius: 12px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.08);">
-                <h3>🚗 Vehicle Distribution</h3>
-                <canvas id="vehicleChart"></canvas>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">🚗 Vehicle Distribution</h2>
+                </div>
+                <canvas id="vehicleChart" height="250"></canvas>
             </div>
-        </div>
-
-        <!-- Recommendations Panel -->
-        <div class="prediction-panel" style="margin-top: 30px;">
-            <h3>💡 AI Recommendations</h3>
-            <div id="recommendations"></div>
-        </div>
-    </div>
-
-    <!-- AI Predictions Section -->
-    <div class="container">
-        <div>
-            <h2>🤖 AI Traffic Predictions <span style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 3px 10px; border-radius: 20px; font-size: 0.8em; font-weight: bold;">AI</span></h2>
-            <canvas id="aiPredictionChart" height="200"></canvas>
-        </div>
-    </div>
-
-    <!-- AI Recommendations Section -->
-    <div class="container">
-        <div>
-            <h2>💡 AI Recommendations</h2>
-            <div id="aiRecommendations"></div>
-        </div>
-    </div>
-
-    <!-- Anomaly Detection Section -->
-    <div class="container">
-        <div>
-            <h2>🚨 Anomaly Detection <span style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 3px 10px; border-radius: 20px; font-size: 0.8em; font-weight: bold;">AI</span></h2>
-            <div id="anomalyAlerts">No anomalies detected</div>
         </div>
     </div>
 
     <script>
-        // Enhanced JavaScript with AI features
-        const API_ENDPOINT = 'https://trafficdb-biphin.azurewebsites.net/api/GetTrafficAPI';
-        const ML_ENDPOINT = 'https://trafficdb-biphin.azurewebsites.net/api/GetPredictions';
+        // Sydney coordinates
+        const SYDNEY_CENTER = [-33.8688, 151.2093];
         
-        // Initialize map
-        const map = L.map('trafficMap').setView([40.7128, -74.0060], 12);
+        // Initialize map centered on Sydney
+        const map = L.map('trafficMap').setView(SYDNEY_CENTER, 13);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // Traffic sensors on map
+        // Sydney traffic sensors
         const sensorLocations = [
-            {name: 'Main Street', lat: 40.7260, lng: -74.0060, id: 'sensor1'},
-            {name: 'Highway 101', lat: 40.7128, lng: -74.0200, id: 'sensor2'},
-            {name: 'Downtown', lat: 40.7000, lng: -74.0100, id: 'sensor3'}
+            {name: 'Sydney Harbour Bridge', lat: -33.8570, lng: 151.2400, id: 'sensor1'},
+            {name: 'Parramatta CBD', lat: -33.8170, lng: 151.0020, id: 'sensor2'},
+            {name: 'Bondi Junction', lat: -33.8930, lng: 151.2470, id: 'sensor3'}
         ];
 
         const markers = {};
@@ -245,67 +349,25 @@
         });
 
         // Initialize charts
-        const predictionCtx = document.getElementById('predictionChart').getContext('2d');
-        const predictionChart = new Chart(predictionCtx, {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: 'Predicted Traffic Flow',
-                    data: [],
-                    borderColor: 'rgb(102, 126, 234)',
-                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                    tension: 0.4,
-                    fill: true
-                }, {
-                    label: 'Actual Traffic Flow',
-                    data: [],
-                    borderColor: 'rgb(118, 75, 162)',
-                    borderDash: [5, 5],
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { position: 'top' },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return context.dataset.label + ': ' + context.parsed.y + ' vehicles/min';
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: { display: true, text: 'Vehicles per Minute' }
-                    }
-                }
-            }
-        });
-
-        // Speed trends chart
         const speedCtx = document.getElementById('speedChart').getContext('2d');
         const speedChart = new Chart(speedCtx, {
             type: 'line',
             data: {
                 labels: [],
                 datasets: [{
-                    label: 'Main Street',
+                    label: 'Sydney Harbour Bridge',
                     data: [],
-                    borderColor: '#ff6b6b',
+                    borderColor: '#667eea',
                     tension: 0.3
                 }, {
-                    label: 'Highway 101',
+                    label: 'Parramatta CBD',
                     data: [],
-                    borderColor: '#4ecdc4',
+                    borderColor: '#764ba2',
                     tension: 0.3
                 }, {
-                    label: 'Downtown',
+                    label: 'Bondi Junction',
                     data: [],
-                    borderColor: '#45b7d1',
+                    borderColor: '#00c851',
                     tension: 0.3
                 }]
             },
@@ -316,7 +378,6 @@
             }
         });
 
-        // Vehicle distribution chart
         const vehicleCtx = document.getElementById('vehicleChart').getContext('2d');
         const vehicleChart = new Chart(vehicleCtx, {
             type: 'doughnut',
@@ -338,25 +399,8 @@
             }
         });
 
-        // Initialize AI prediction chart
-        const aiPredictionCtx = document.getElementById('aiPredictionChart').getContext('2d');
-        const aiPredictionChart = new Chart(aiPredictionCtx, {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: 'Predicted Traffic Flow',
-                    data: [],
-                    borderColor: '#667eea',
-                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: { legend: { position: 'top' } }
-            }
-        });
+        // API endpoint
+        const API_ENDPOINT = 'https://trafficdb-biphin.azurewebsites.net/api/GetTrafficAPI';
 
         // Get AI-enhanced data from your Function
         async function getAIEnhancedData() {
@@ -377,35 +421,40 @@
             const data = await getAIEnhancedData();
             if (!data) return;
 
-            // Update prediction chart
+            // Update predictions
             if (data.predictions && data.predictions.length > 0) {
                 const firstPrediction = data.predictions[0];
-                aiPredictionChart.data.labels = firstPrediction.timeFrames;
-                aiPredictionChart.data.datasets[0].data = firstPrediction.countPredictions;
-                aiPredictionChart.update();
+                let predictionHtml = '';
+                
+                for (let i = 0; i < firstPrediction.timeFrames.length; i++) {
+                    predictionHtml += `
+                        <div class="prediction-item">
+                            <div class="prediction-time">${firstPrediction.timeFrames[i]}</div>
+                            <div class="prediction-value">${firstPrediction.countPredictions[i]}</div>
+                            <div style="font-size: 0.9em; color: #666;">vehicles</div>
+                        </div>
+                    `;
+                }
+                document.getElementById('predictionContainer').innerHTML = predictionHtml;
             }
 
             // Update recommendations
             if (data.recommendations && data.recommendations.length > 0) {
                 const recHtml = data.recommendations.map(rec => `
-                    <div style="padding: 15px; margin: 10px 0; background: #f8f9fa; border-radius: 8px; border-left: 4px solid ${
-                        rec.type === 'critical' ? '#ff4444' : 
-                        rec.type === 'warning' ? '#ffaa00' : '#00c851'
-                    };">
+                    <div class="recommendation-item recommendation-${rec.type}">
                         <strong>${rec.type.toUpperCase()}:</strong> ${rec.action}<br>
                         <span style="color: #666;">Impact: ${rec.impact}</span><br>
-                        <span style="color: #666;">AI Confidence: ${rec.confidence}%</span><br>
-                        <span style="color: #666;">Locations: ${rec.locations.join(', ')}</span>
+                        <span style="color: #666;">AI Confidence: ${rec.confidence}%</span>
                     </div>
                 `).join('');
-                document.getElementById('aiRecommendations').innerHTML = recHtml;
+                document.getElementById('recommendations').innerHTML = recHtml;
             }
 
             // Update anomaly detection
             const anomalies = data.sensors.filter(s => s.anomaly?.isAnomaly);
             if (anomalies.length > 0) {
                 const anomalyHtml = anomalies.map(sensor => `
-                    <div style="padding: 15px; margin: 10px 0; background: #ffebee; border-radius: 8px; border-left: 4px solid #f44336;">
+                    <div class="anomaly-alert">
                         <strong>Anomaly detected at ${sensor.location}</strong><br>
                         <span style="color: #666;">${sensor.anomaly.reason || 'Unusual traffic pattern'}</span><br>
                         <span style="color: #666;">Detected at: ${new Date(sensor.timestamp).toLocaleTimeString()}</span>
@@ -417,57 +466,7 @@
             }
         }
 
-        // AI-powered traffic prediction
-        async function getMLPredictions() {
-            // Simulate ML predictions
-            const predictions = [];
-            const now = new Date();
-            for (let i = 0; i < 6; i++) {
-                const time = new Date(now.getTime() + i * 5 * 60000);
-                predictions.push({
-                    time: time.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-                    predicted: Math.floor(Math.random() * 30) + 40,
-                    actual: i < 2 ? Math.floor(Math.random() * 30) + 35 : null
-                });
-            }
-            return predictions;
-        }
-
-        // Generate AI recommendations
-        function generateRecommendations(avgSpeed, congestionLevel) {
-            const recommendations = [];
-            
-            if (congestionLevel === 'Heavy' || avgSpeed < 30) {
-                recommendations.push({
-                    icon: '🚦',
-                    text: 'Adjust signal timing: Increase green light duration on Main Street by 15 seconds',
-                    priority: 'High'
-                });
-                recommendations.push({
-                    icon: '🚌',
-                    text: 'Route public transport via alternate routes to reduce congestion',
-                    priority: 'High'
-                });
-            }
-            
-            if (avgSpeed < 50) {
-                recommendations.push({
-                    icon: '📱',
-                    text: 'Send traffic alerts to navigation apps for route optimization',
-                    priority: 'Medium'
-                });
-            }
-            
-            recommendations.push({
-                icon: '📊',
-                text: 'ML Model predicts 23% traffic increase in next hour - prepare traffic management resources',
-                priority: 'Low'
-            });
-            
-            return recommendations;
-        }
-
-        // Update dashboard with real and AI-enhanced data
+        // Update dashboard with real data
         async function updateDashboard() {
             try {
                 // Generate realistic traffic data based on time
@@ -482,8 +481,7 @@
                         Math.floor(Math.random() * 40) + 40,
                     vehicles: isRushHour ? 
                         Math.floor(Math.random() * 150) + 100 : 
-                        Math.floor(Math.random() * 80) + 40,
-                    congestion: 0
+                        Math.floor(Math.random() * 80) + 40
                 }));
 
                 // Calculate metrics
@@ -496,34 +494,28 @@
                 document.getElementById('avgSpeed').textContent = avgSpeed;
                 document.getElementById('totalVehicles').textContent = totalVehicles.toLocaleString();
                 
-                // AI congestion analysis
+                // Congestion level
                 let congestionLevel = 'Light';
-                let congestionColor = '#00c851';
-                let mlConfidence = 94;
+                let congestionClass = 'success-color';
                 
                 if (avgSpeed < 25) {
                     congestionLevel = 'Heavy';
-                    congestionColor = '#ff4444';
-                    mlConfidence = 91;
-                    document.getElementById('alertBanner').classList.add('active');
+                    congestionClass = 'danger-color';
                 } else if (avgSpeed < 45) {
                     congestionLevel = 'Moderate';
-                    congestionColor = '#ffaa00';
-                    mlConfidence = 93;
-                    document.getElementById('alertBanner').classList.remove('active');
-                } else {
-                    document.getElementById('alertBanner').classList.remove('active');
+                    congestionClass = 'warning-color';
                 }
                 
                 const congestionEl = document.getElementById('congestionLevel');
                 congestionEl.textContent = congestionLevel;
-                congestionEl.style.color = congestionColor;
-                document.getElementById('confidence').textContent = mlConfidence + '%';
+                congestionEl.className = `metric-value ${congestionClass}`;
                 
                 // Update map markers
                 sensorData.forEach(sensor => {
-                    const color = sensor.speed < 25 ? '#ff4444' : 
-                                sensor.speed < 45 ? '#ffaa00' : '#00c851';
+                    let color = '#00c851'; // Green
+                    if (sensor.speed < 25) color = '#ff4444'; // Red
+                    else if (sensor.speed < 45) color = '#ffaa00'; // Orange
+                    
                     markers[sensor.id].setStyle({ fillColor: color });
                     markers[sensor.id].setPopupContent(
                         `<b>${sensor.name}</b><br>
@@ -548,13 +540,6 @@
                 }
                 speedChart.update();
                 
-                // Update ML predictions
-                const predictions = await getMLPredictions();
-                predictionChart.data.labels = predictions.map(p => p.time);
-                predictionChart.data.datasets[0].data = predictions.map(p => p.predicted);
-                predictionChart.data.datasets[1].data = predictions.map(p => p.actual);
-                predictionChart.update();
-                
                 // Update vehicle distribution
                 vehicleChart.data.datasets[0].data = [
                     Math.floor(totalVehicles * 0.65),
@@ -564,19 +549,6 @@
                 ];
                 vehicleChart.update();
                 
-                // Generate and display AI recommendations
-                const recommendations = generateRecommendations(avgSpeed, congestionLevel);
-                const recHtml = recommendations.map(rec => `
-                    <div style="padding: 15px; margin: 10px 0; background: #f8f9fa; border-radius: 8px; border-left: 4px solid ${
-                        rec.priority === 'High' ? '#ff4444' : 
-                        rec.priority === 'Medium' ? '#ffaa00' : '#00c851'
-                    };">
-                        <span style="font-size: 1.5em; margin-right: 10px;">${rec.icon}</span>
-                        <strong>${rec.priority} Priority:</strong> ${rec.text}
-                    </div>
-                `).join('');
-                document.getElementById('recommendations').innerHTML = recHtml;
-                
             } catch (error) {
                 console.error('Dashboard update error:', error);
             }
@@ -585,6 +557,7 @@
         // Initialize dashboard
         updateDashboard();
         setInterval(updateDashboard, 5000); // Update every 5 seconds
+        
         updateAIFeatures();
         setInterval(updateAIFeatures, 10000); // Update AI features every 10 seconds
 
