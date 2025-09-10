@@ -101,6 +101,15 @@
             0%, 100% { opacity: 1; }
             50% { opacity: 0.8; }
         }
+        .container {
+            margin-top: 20px;
+        }
+        .container > div {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 <body>
@@ -178,6 +187,30 @@
         <div class="prediction-panel" style="margin-top: 30px;">
             <h3>💡 AI Recommendations</h3>
             <div id="recommendations"></div>
+        </div>
+    </div>
+
+    <!-- AI Predictions Section -->
+    <div class="container">
+        <div>
+            <h2>🤖 AI Traffic Predictions <span style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 3px 10px; border-radius: 20px; font-size: 0.8em; font-weight: bold;">AI</span></h2>
+            <canvas id="aiPredictionChart" height="200"></canvas>
+        </div>
+    </div>
+
+    <!-- AI Recommendations Section -->
+    <div class="container">
+        <div>
+            <h2>💡 AI Recommendations</h2>
+            <div id="aiRecommendations"></div>
+        </div>
+    </div>
+
+    <!-- Anomaly Detection Section -->
+    <div class="container">
+        <div>
+            <h2>🚨 Anomaly Detection <span style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 3px 10px; border-radius: 20px; font-size: 0.8em; font-weight: bold;">AI</span></h2>
+            <div id="anomalyAlerts">No anomalies detected</div>
         </div>
     </div>
 
@@ -305,6 +338,85 @@
             }
         });
 
+        // Initialize AI prediction chart
+        const aiPredictionCtx = document.getElementById('aiPredictionChart').getContext('2d');
+        const aiPredictionChart = new Chart(aiPredictionCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Predicted Traffic Flow',
+                    data: [],
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { position: 'top' } }
+            }
+        });
+
+        // Get AI-enhanced data from your Function
+        async function getAIEnhancedData() {
+            try {
+                const response = await fetch(API_ENDPOINT);
+                if (!response.ok) {
+                    throw new Error('API error');
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Error fetching AI data:', error);
+                return null;
+            }
+        }
+
+        // Update the AI sections with data
+        async function updateAIFeatures() {
+            const data = await getAIEnhancedData();
+            if (!data) return;
+
+            // Update prediction chart
+            if (data.predictions && data.predictions.length > 0) {
+                const firstPrediction = data.predictions[0];
+                aiPredictionChart.data.labels = firstPrediction.timeFrames;
+                aiPredictionChart.data.datasets[0].data = firstPrediction.countPredictions;
+                aiPredictionChart.update();
+            }
+
+            // Update recommendations
+            if (data.recommendations && data.recommendations.length > 0) {
+                const recHtml = data.recommendations.map(rec => `
+                    <div style="padding: 15px; margin: 10px 0; background: #f8f9fa; border-radius: 8px; border-left: 4px solid ${
+                        rec.type === 'critical' ? '#ff4444' : 
+                        rec.type === 'warning' ? '#ffaa00' : '#00c851'
+                    };">
+                        <strong>${rec.type.toUpperCase()}:</strong> ${rec.action}<br>
+                        <span style="color: #666;">Impact: ${rec.impact}</span><br>
+                        <span style="color: #666;">AI Confidence: ${rec.confidence}%</span><br>
+                        <span style="color: #666;">Locations: ${rec.locations.join(', ')}</span>
+                    </div>
+                `).join('');
+                document.getElementById('aiRecommendations').innerHTML = recHtml;
+            }
+
+            // Update anomaly detection
+            const anomalies = data.sensors.filter(s => s.anomaly?.isAnomaly);
+            if (anomalies.length > 0) {
+                const anomalyHtml = anomalies.map(sensor => `
+                    <div style="padding: 15px; margin: 10px 0; background: #ffebee; border-radius: 8px; border-left: 4px solid #f44336;">
+                        <strong>Anomaly detected at ${sensor.location}</strong><br>
+                        <span style="color: #666;">${sensor.anomaly.reason || 'Unusual traffic pattern'}</span><br>
+                        <span style="color: #666;">Detected at: ${new Date(sensor.timestamp).toLocaleTimeString()}</span>
+                    </div>
+                `).join('');
+                document.getElementById('anomalyAlerts').innerHTML = anomalyHtml;
+            } else {
+                document.getElementById('anomalyAlerts').innerHTML = 'No anomalies detected';
+            }
+        }
+
         // AI-powered traffic prediction
         async function getMLPredictions() {
             // Simulate ML predictions
@@ -348,7 +460,7 @@
             
             recommendations.push({
                 icon: '📊',
-                ML Model predicts 23% traffic increase in next hour - prepare traffic management resources',
+                text: 'ML Model predicts 23% traffic increase in next hour - prepare traffic management resources',
                 priority: 'Low'
             });
             
@@ -473,6 +585,8 @@
         // Initialize dashboard
         updateDashboard();
         setInterval(updateDashboard, 5000); // Update every 5 seconds
+        updateAIFeatures();
+        setInterval(updateAIFeatures, 10000); // Update AI features every 10 seconds
 
         // Add timestamp to title
         setInterval(() => {
