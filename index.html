@@ -114,4 +114,83 @@
         .sensor-score {
             font-size: 1.2em;
             font-weight: bold;
-   
+            color: #3498db;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🚦 Smart Traffic Dashboard</h1>
+    <div id="status">Loading...</div>
+
+    <div class="summary">
+        <h2>Summary</h2>
+        <div id="summary" class="summary-grid">
+            <!-- Traffic Index Display -->
+            <div id="traffic-index" class="traffic-index"></div>
+            <div class="summary-item"><strong></strong>Sensors Active</div>
+            <div class="summary-item"><strong>km/h</strong>Avg Speed</div>
+            <div class="summary-item"><strong></strong>Avg Vehicles</div>
+            <div class="summary-item"><strong></strong>Anomalies</div>
+        </div>
+    </div>
+
+    <div class="sensors">
+        <h2>Live Sensors</h2>
+        <div id="sensors" class="sensors-grid"></div>
+    </div>
+
+    <script>
+        const API_URL = "https://smarttrafficbiphin-hqeadtdjfwe8ehb4.westeurope-01.azurewebsites.net/api/GetTrafficInsights?code=-4rdi9I39NRfVETUI8c81Iid3iC7-E1KkqCJsYatgZa1AzFuHy5W8g==";
+
+        async function load() {
+            document.getElementById("status").textContent = "⏳ Fetching data...";
+            try {
+                const res = await fetch(API_URL);
+                const data = await res.json();
+                document.getElementById("status").textContent =
+                    "✅ Updated: " + new Date(data.timestamp).toLocaleTimeString();
+
+                // Traffic Index
+                const trafficIndex = data.summary.trafficIndex;
+                let trafficClass = 'light';
+                if (trafficIndex > 70) {
+                    trafficClass = 'heavy';
+                } else if (trafficIndex > 40) {
+                    trafficClass = 'moderate';
+                }
+
+                document.getElementById("traffic-index").innerHTML = `
+        Overall Traffic Index: <span class="${trafficClass}">${trafficIndex}</span>
+    `;
+
+                // Summary
+                document.getElementById("summary").innerHTML = `
+        <div class="summary-item"><strong>${data.summary.totalSensors}</strong>Sensors Active</div>
+        <div class="summary-item"><strong>${data.summary.averageSpeed} km/h</strong>Avg Speed</div>
+        <div class="summary-item"><strong>${data.summary.averageVehicles}</strong>Avg Vehicles</div>
+        <div class="summary-item"><strong>${data.summary.anomalies}</strong>Anomalies</div>
+    `;
+
+                // Sensors
+                document.getElementById("sensors").innerHTML = data.sensors.map(s => `
+        <div class="sensor-card ${s.isAnomaly ? "anomaly" : ""}">
+            <h3>${s.location}</h3>
+            <p><strong>Speed:</strong> ${s.speed} km/h</p>
+            <p><strong>Vehicles:</strong> ${s.vehicleCount}</p>
+            <p><strong>Congestion:</strong> <span class="${s.congestionLevel.toLowerCase()}">${s.congestionLevel}</span></p>
+            <p><strong>Weather:</strong> ${s.weatherCondition} | <strong>Road:</strong> ${s.roadCondition}</p>
+            <p><strong>Visibility:</strong> ${s.visibility}%</p>
+            <p class="sensor-score">Traffic Score: ${s.sensorTrafficScore}</p>
+        </div>
+    `).join("");
+            } catch (err) {
+                document.getElementById("status").textContent = "❌ Error: " + err;
+            }
+        }
+
+        load();
+        setInterval(load, 15000); // refresh every 15s
+    </script>
+</body>
+</html>
