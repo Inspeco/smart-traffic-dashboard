@@ -3,418 +3,291 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚦 AI-Powered Smart City Traffic Management</title>
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+    <title>🚦 Smart City Traffic Data</title>
     <style>
         :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --card-bg: rgba(255, 255, 255, 0.95);
-            --shadow-light: 0 10px 25px rgba(0,0,0,0.1);
-            --shadow-hover: 0 15px 35px rgba(0,0,0,0.15);
-            --status-excellent: #00C851;
-            --status-good: #4CAF50;
-            --status-fair: #ffaa00;
-            --status-poor: #ff4444;
-            --status-heavy: #ff4444;
-            --status-moderate: #ffaa00;
-            --status-light: #00C851;
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --light-bg: #f8f9fa;
+            --border: #e9ecef;
+            --text-primary: #333;
+            --text-secondary: #666;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
         }
 
-        * { 
-            box-sizing: border-box; 
-            margin: 0; 
-            padding: 0; 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
-        
+
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: var(--primary-gradient);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 20px;
             min-height: 100vh;
         }
-        
-        .dashboard {
-            max-width: 1600px;
+
+        .container {
+            max-width: 1200px;
             margin: 0 auto;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
             padding: 20px;
-        }
-        
-        .header {
-            background: rgba(255, 255, 255, 0.98);
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            backdrop-filter: blur(10px);
-        }
-        
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .card {
-            background: var(--card-bg);
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: var(--shadow-light);
-            backdrop-filter: blur(10px);
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-hover);
-        }
-        
-        .metric-card {
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             text-align: center;
-            position: relative;
         }
-        
-        .metric-value {
-            font-size: 3em;
-            font-weight: bold;
-            color: #667eea;
-            margin: 15px 0;
+
+        h1 {
+            margin-bottom: 10px;
+            color: var(--primary);
         }
-        
-        .metric-label {
-            color: #666;
-            font-size: 0.9em;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 600;
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
         }
-        
-        .ai-badge {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: var(--primary-gradient);
-            color: white;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.8em;
-            font-weight: bold;
-        }
-        
-        .status-excellent { color: var(--status-excellent) !important; }
-        .status-good { color: var(--status-good) !important; }
-        .status-fair { color: var(--status-fair) !important; }
-        .status-poor { color: var(--status-poor) !important; }
-        .status-heavy { color: var(--status-heavy) !important; }
-        .status-moderate { color: var(--status-moderate) !important; }
-        .status-light { color: var(--status-light) !important; }
-        
+
         .live-indicator {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 8px 16px;
-            background: #00c851;
+            padding: 6px 12px;
+            background: var(--success);
             color: white;
-            border-radius: 25px;
+            border-radius: 20px;
             font-size: 0.9em;
             font-weight: bold;
-            animation: pulse 2s infinite;
         }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.8; }
+
+        .blink {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: white;
+            border-radius: 50%;
+            animation: blink 1s infinite;
         }
-        
+
         @keyframes blink {
             0%, 50% { opacity: 1; }
             51%, 100% { opacity: 0.3; }
         }
-        
-        .alert-banner {
-            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
-            color: white;
-            padding: 18px;
-            border-radius: 12px;
-            margin-bottom: 25px;
-            display: none;
-            animation: slideDown 0.5s ease-out;
+
+        .data-source {
+            font-size: 0.85em;
+            color: var(--text-secondary);
         }
-        
-        .alert-banner.active {
-            display: flex;
-            align-items: center;
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .card-title {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+            color: var(--primary);
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 15px;
         }
-        
-        @keyframes slideDown {
-            from { transform: translateY(-100%); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        
-        .two-cols {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 25px;
-            margin-bottom: 25px;
-        }
-        
-        .three-cols {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 25px;
-            margin-bottom: 25px;
-        }
-        
-        #trafficMap {
-            height: 450px;
-            border-radius: 12px;
-        }
-        
-        .recommendation {
-            padding: 18px;
-            margin: 15px 0;
-            border-radius: 10px;
-            border-left: 5px solid;
-        }
-        
-        .recommendation.critical {
-            background: #ffebee;
-            border-color: #f44336;
-        }
-        
-        .recommendation.high {
-            background: #fff8e1;
-            border-color: #ff9800;
-        }
-        
-        .recommendation.medium {
-            background: #e3f2fd;
-            border-color: #2196f3;
-        }
-        
-        .sensor-detail {
-            padding: 20px;
-            margin: 15px 0;
-            background: #f8f9fa;
-            border-radius: 12px;
-            border: 1px solid #e9ecef;
-        }
-        
-        .anomaly-alert {
-            padding: 15px;
-            margin: 10px 0;
-            background: #ffebee;
-            border-left: 5px solid #f44336;
-            border-radius: 8px;
-        }
-        
-        .loading {
+
+        .metric {
             text-align: center;
-            padding: 40px;
-            color: #666;
         }
-        
-        .data-source {
+
+        .metric-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 5px 0;
+        }
+
+        .metric-label {
+            font-size: 0.85em;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .sensor-list, .anomaly-list, .recommendation-list {
+            list-style: none;
+        }
+
+        .sensor-item, .anomaly-item, .recommendation-item {
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            background: var(--light-bg);
+            border-left: 4px solid var(--primary);
+        }
+
+        .sensor-item.heavy { border-left-color: var(--danger); }
+        .sensor-item.moderate { border-left-color: var(--warning); }
+        .sensor-item.light { border-left-color: var(--success); }
+
+        .sensor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .sensor-name {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .sensor-status {
+            padding: 3px 10px;
+            border-radius: 20px;
             font-size: 0.8em;
-            color: #999;
-            text-align: right;
-            margin-top: 10px;
+            font-weight: bold;
+            color: white;
         }
-        
+
+        .status-heavy { background: var(--danger); }
+        .status-moderate { background: var(--warning); color: var(--text-primary); }
+        .status-light { background: var(--success); }
+
+        .sensor-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            font-size: 0.9em;
+        }
+
+        .detail-item strong {
+            display: block;
+            color: var(--text-secondary);
+            font-size: 0.85em;
+        }
+
+        .anomaly-item {
+            border-left-color: var(--danger);
+        }
+
+        .recommendation-item.critical {
+            border-left-color: var(--danger);
+            background: #ffebee;
+        }
+
+        .recommendation-item.high {
+            border-left-color: var(--warning);
+            background: #fff8e1;
+        }
+
+        .recommendation-item.medium {
+            border-left-color: var(--primary);
+            background: #e3f2fd;
+        }
+
+        .priority-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: bold;
+            color: white;
+        }
+
+        .priority-critical { background: var(--danger); }
+        .priority-high { background: var(--warning); color: var(--text-primary); }
+        .priority-medium { background: var(--primary); }
+
+        .loading, .error {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+
+        .error {
+            color: var(--danger);
+            background: #ffebee;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .timestamp {
+            text-align: center;
+            font-size: 0.85em;
+            color: var(--text-secondary);
+            margin-top: 20px;
+        }
+
         @media (max-width: 768px) {
-            .dashboard { padding: 10px; }
-            .two-cols, .three-cols { grid-template-columns: 1fr; }
-            .metric-value { font-size: 2.2em; }
+            body { padding: 10px; }
+            .grid { grid-template-columns: 1fr; }
+            .metric-grid { grid-template-columns: repeat(3, 1fr); }
         }
     </style>
 </head>
 <body>
-    <div class="dashboard">
-        <!-- Header Section -->
-        <div class="header">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
-                <div>
-                    <h1>🚦 Smart City Traffic Management System</h1>
-                    <p style="color: #666; margin-top: 8px;">
-                        AI-Powered Real-time Traffic Monitoring & Optimization • ICT200 Assessment 3
-                    </p>
-                </div>
-                <div class="live-indicator">
-                    <span style="width: 10px; height: 10px; background: white; border-radius: 50%; animation: blink 1s infinite;"></span>
-                    LIVE DATA
-                </div>
+    <div class="container">
+        <header>
+            <h1>🚦 Smart City Traffic Dashboard</h1>
+            <p>Real-time data from Cosmos DB via Azure Functions</p>
+        </header>
+
+        <div class="status-bar">
+            <div class="live-indicator">
+                <span class="blink"></span>
+                LIVE DATA
+            </div>
+            <div class="data-source" id="dataSourceInfo">
+                Connecting to data source...
             </div>
         </div>
 
-        <!-- Alert Banner -->
-        <div class="alert-banner" id="alertBanner">
-            <span style="font-size: 1.5em;">⚠️</span>
-            <div>
-                <strong>AI TRAFFIC ALERT:</strong>
-                <div id="alertMessage">Monitoring traffic conditions...</div>
-            </div>
+        <div id="mainContent">
+            <div class="loading">Loading traffic data...</div>
         </div>
 
-        <!-- Main Metrics Grid -->
-        <div class="metrics-grid">
-            <div class="card metric-card">
-                <div class="ai-badge">AI</div>
-                <div class="metric-label">Traffic Health Index</div>
-                <div class="metric-value" id="trafficHealth">85</div>
-                <div style="color: #666; font-size: 0.85em;" id="healthStatus">Good</div>
-            </div>
-            
-            <div class="card metric-card">
-                <div class="metric-label">Active Sensors</div>
-                <div class="metric-value" id="activeSensors">3</div>
-                <div style="color: #666; font-size: 0.85em;">Real-time monitoring</div>
-            </div>
-            
-            <div class="card metric-card">
-                <div class="ai-badge">AI</div>
-                <div class="metric-label">Avg City Speed</div>
-                <div class="metric-value" id="avgSpeed">45</div>
-                <div style="color: #666; font-size: 0.85em;">km/h citywide</div>
-            </div>
-            
-            <div class="card metric-card">
-                <div class="metric-label">Total Vehicles</div>
-                <div class="metric-value" id="totalVehicles">1,247</div>
-                <div style="color: #666; font-size: 0.85em;">Currently monitored</div>
-            </div>
-            
-            <div class="card metric-card">
-                <div class="ai-badge">AI</div>
-                <div class="metric-label">Congestion Hotspots</div>
-                <div class="metric-value status-moderate" id="congestionHotspots">1</div>
-                <div style="color: #666; font-size: 0.85em;">Locations affected</div>
-            </div>
-            
-            <div class="card metric-card">
-                <div class="ai-badge">AI</div>
-                <div class="metric-label">Carbon Impact</div>
-                <div class="metric-value" id="carbonImpact">Moderate</div>
-                <div style="color: #666; font-size: 0.85em;">Air quality effect</div>
-            </div>
-        </div>
-
-        <!-- Traffic Map -->
-        <div class="card">
-            <h2>🗺️ Live Traffic Map <span class="ai-badge">AI</span></h2>
-            <div id="trafficMap"></div>
-        </div>
-
-        <!-- AI Insights Section -->
-        <div class="three-cols">
-            <div class="card">
-                <h2>🤖 AI Recommendations</h2>
-                <div id="aiRecommendations" class="loading">Loading AI recommendations...</div>
-            </div>
-            
-            <div class="card">
-                <h2>🚨 Anomaly Detection <span class="ai-badge">AI</span></h2>
-                <div id="anomalyDetection">No anomalies detected</div>
-            </div>
-            
-            <div class="card">
-                <h2>🏙️ Citywide Summary</h2>
-                <div id="citywideSummary" class="loading">Calculating city metrics...</div>
-            </div>
-        </div>
-
-        <!-- Sensor Details -->
-        <div class="card">
-            <h2>📡 Sensor Network Status</h2>
-            <div id="sensorDetails" class="loading">Loading sensor data...</div>
-        </div>
-
-        <!-- Data Source Info -->
-        <div class="card">
-            <h3>📊 Data Pipeline Status</h3>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
-                <div>
-                    <strong>IoT Hub:</strong> <span id="iotStatus" style="color: #00c851;">Connected</span>
-                </div>
-                <div>
-                    <strong>Stream Analytics:</strong> <span id="streamStatus" style="color: #00c851;">Running</span>
-                </div>
-                <div>
-                    <strong>Cosmos DB:</strong> <span id="cosmosStatus" style="color: #00c851;">Active</span>
-                </div>
-                <div>
-                    <strong>AI Functions:</strong> <span id="aiStatus" style="color: #00c851;">Online</span>
-                </div>
-            </div>
-            <div class="data-source" id="dataSourceInfo">Data source: Azure Cosmos DB via Stream Analytics</div>
+        <div class="timestamp" id="lastUpdated">
+            Last updated: Never
         </div>
     </div>
 
     <script>
-        // Configuration
+        // Configuration - Update with your actual Function App URL
         const CONFIG = {
             FUNCTION_APP_URL: 'https://func-traffic-[yourname].azurewebsites.net',
-            UPDATE_INTERVAL: 10000
+            UPDATE_INTERVAL: 10000 // 10 seconds
         };
         CONFIG.API_ENDPOINT = `${CONFIG.FUNCTION_APP_URL}/api/GetTrafficInsights`;
 
-        // Global variables
-        let map;
-        let markers = {};
-        let currentData = null;
+        // DOM Elements
+        const mainContent = document.getElementById('mainContent');
+        const dataSourceInfo = document.getElementById('dataSourceInfo');
+        const lastUpdated = document.getElementById('lastUpdated');
 
-        // DOM Elements Cache
-        const DOM_CACHE = {
-            trafficHealth: document.getElementById('trafficHealth'),
-            healthStatus: document.getElementById('healthStatus'),
-            activeSensors: document.getElementById('activeSensors'),
-            avgSpeed: document.getElementById('avgSpeed'),
-            totalVehicles: document.getElementById('totalVehicles'),
-            congestionHotspots: document.getElementById('congestionHotspots'),
-            carbonImpact: document.getElementById('carbonImpact'),
-            alertBanner: document.getElementById('alertBanner'),
-            alertMessage: document.getElementById('alertMessage'),
-            aiRecommendations: document.getElementById('aiRecommendations'),
-            anomalyDetection: document.getElementById('anomalyDetection'),
-            citywideSummary: document.getElementById('citywideSummary'),
-            sensorDetails: document.getElementById('sensorDetails'),
-            dataSourceInfo: document.getElementById('dataSourceInfo'),
-            iotStatus: document.getElementById('iotStatus'),
-            streamStatus: document.getElementById('streamStatus'),
-            cosmosStatus: document.getElementById('cosmosStatus'),
-            aiStatus: document.getElementById('aiStatus')
-        };
-
-        // Sensor locations
-        const SENSOR_LOCATIONS = [
-            {id: 'TrafficSensor-MainSt', name: 'Main Street', lat: 40.7260, lng: -74.0060},
-            {id: 'TrafficSensor-Highway101', name: 'Highway 101', lat: 40.7128, lng: -74.0200},
-            {id: 'TrafficSensor-Downtown', name: 'Downtown', lat: 40.7000, lng: -74.0100}
-        ];
-
-        // Initialize Leaflet Map
-        function initializeMap() {
-            map = L.map('trafficMap').setView([40.7128, -74.0060], 11);
-            
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
-
-            // Create markers for each sensor
-            SENSOR_LOCATIONS.forEach(sensor => {
-                markers[sensor.id] = L.circleMarker([sensor.lat, sensor.lng], {
-                    radius: 15,
-                    fillColor: '#00c851',
-                    color: '#fff',
-                    weight: 3,
-                    opacity: 1,
-                    fillOpacity: 0.8
-                }).addTo(map).bindPopup(`<b>${sensor.name}</b><br>Loading data...`);
-            });
-        }
-
-        // Fetch AI-enhanced traffic data
+        // Fetch traffic data from Azure Function
         async function fetchTrafficData() {
             try {
                 const response = await fetch(CONFIG.API_ENDPOINT);
@@ -428,307 +301,198 @@
                 return data;
             } catch (error) {
                 console.error('Error fetching traffic data:', error);
-                
-                // Update status indicators
-                DOM_CACHE.aiStatus.style.color = '#ff4444';
-                DOM_CACHE.aiStatus.textContent = 'Offline';
-                DOM_CACHE.dataSourceInfo.textContent = `Error: ${error.message}`;
-                
                 return null;
             }
         }
 
-        // Update dashboard with new data
-        function updateDashboard(data) {
-            if (!data || !data.sensors) {
-                console.error('Invalid data received');
+        // Render the dashboard with real data
+        function renderDashboard(data) {
+            if (!data) {
+                mainContent.innerHTML = `
+                    <div class="error">
+                        Failed to load traffic data. Please check your connection and API endpoint.
+                    </div>
+                `;
                 return;
             }
-
-            currentData = data;
-
-            // Update main metrics
-            updateMainMetrics(data);
-            
-            // Update map markers
-            updateMapMarkers(data.sensors);
-            
-            // Update AI sections
-            updateAIRecommendations(data.recommendations || []);
-            updateAnomalyDetection(data.anomalies || []);
-            updateCitywideSummary(data.citywideSummary || {});
-            updateSensorDetails(data.sensors);
-
-            // Update alerts
-            updateAlerts(data);
 
             // Update data source info
-            DOM_CACHE.dataSourceInfo.textContent = 
-                `Data source: ${data.dataSource} • Last updated: ${new Date().toLocaleTimeString()}`;
-        }
+            dataSourceInfo.textContent = `Data source: ${data.dataSource || 'Cosmos DB'} • API: ${CONFIG.API_ENDPOINT}`;
+            lastUpdated.textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
 
-        // Update main metrics
-        function updateMainMetrics(data) {
-            const { aiInsights, sensors } = data;
-            
-            if (aiInsights) {
-                DOM_CACHE.trafficHealth.textContent = aiInsights.trafficEfficiencyScore || '85';
-                const healthStatus = aiInsights.overallTrafficHealth || 'Good';
-                DOM_CACHE.healthStatus.textContent = healthStatus;
-                DOM_CACHE.healthStatus.className = `status-${healthStatus.toLowerCase()}`;
-                
-                DOM_CACHE.avgSpeed.textContent = aiInsights.averageSpeed || '45';
-                DOM_CACHE.congestionHotspots.textContent = aiInsights.congestionHotspots || '0';
-                DOM_CACHE.carbonImpact.textContent = aiInsights.carbonEmissionIndex || 'Low';
-            }
-            
-            if (sensors) {
-                DOM_CACHE.activeSensors.textContent = sensors.length;
-                const totalVehicles = sensors.reduce((sum, s) => sum + s.vehicleCount, 0);
-                DOM_CACHE.totalVehicles.textContent = totalVehicles.toLocaleString();
-            }
-        }
-
-        // Update map markers
-        function updateMapMarkers(sensors) {
-            sensors.forEach(sensor => {
-                const marker = markers[sensor.sensorId];
-                if (marker) {
-                    // Update marker color based on congestion level
-                    const color = sensor.congestionLevel === 'Heavy' ? '#ff4444' : 
-                                sensor.congestionLevel === 'Moderate' ? '#ffaa00' : '#00c851';
-                    
-                    marker.setStyle({ fillColor: color });
-                    
-                    // Update popup content
-                    marker.setPopupContent(`
-                        <div style="min-width: 200px;">
-                            <h3>${sensor.location}</h3>
-                            <div style="margin: 10px 0;">
-                                <strong>Speed:</strong> ${sensor.speed} km/h<br>
-                                <strong>Vehicles:</strong> ${sensor.vehicleCount}<br>
-                                <strong>Congestion:</strong> <span style="color: ${color};">${sensor.congestionLevel}</span><br>
-                                <strong>AI Score:</strong> ${sensor.congestionScore || 'N/A'}/100
+            // Build HTML content
+            let html = `
+                <!-- Main Metrics -->
+                <div class="grid">
+                    <div class="card">
+                        <h2 class="card-title">🚦 City Overview</h2>
+                        <div class="metric-grid">
+                            <div class="metric">
+                                <div class="metric-label">Traffic Health</div>
+                                <div class="metric-value">${data.aiInsights?.trafficEfficiencyScore || 'N/A'}</div>
+                                <div class="metric-label">${data.aiInsights?.overallTrafficHealth || 'Unknown'}</div>
                             </div>
-                            ${sensor.isAnomaly ? '<div style="color: #ff4444; font-weight: bold;">⚠️ Anomaly Detected</div>' : ''}
+                            <div class="metric">
+                                <div class="metric-label">Active Sensors</div>
+                                <div class="metric-value">${data.sensors?.length || 0}</div>
+                                <div class="metric-label">Monitoring</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-label">Avg Speed</div>
+                                <div class="metric-value">${data.aiInsights?.averageSpeed || 'N/A'}</div>
+                                <div class="metric-label">km/h</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-label">Vehicles</div>
+                                <div class="metric-value">${calculateTotalVehicles(data.sensors)}</div>
+                                <div class="metric-label">Detected</div>
+                            </div>
                         </div>
-                    `);
-                }
-            });
-        }
+                    </div>
 
-        // Update AI recommendations
-        function updateAIRecommendations(recommendations) {
-            if (!recommendations || recommendations.length === 0) {
-                DOM_CACHE.aiRecommendations.innerHTML = '<div style="text-align: center; color: #666;">No recommendations at this time</div>';
-                return;
-            }
-            
-            DOM_CACHE.aiRecommendations.innerHTML = recommendations.map(rec => `
-                <div class="recommendation ${rec.priority.toLowerCase()}">
-                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
-                        <strong style="color: #333;">${rec.priority} PRIORITY</strong>
-                        <span style="background: #f8f9fa; padding: 4px 8px; border-radius: 12px; font-size: 0.8em;">
-                            ${rec.aiConfidence}% confidence
-                        </span>
-                    </div>
-                    <div style="margin-bottom: 8px; color: #555;">
-                        <strong>${rec.category}:</strong> ${rec.action}
-                    </div>
-                    <div style="color: #666; font-size: 0.9em;">
-                        <strong>Expected Impact:</strong> ${rec.expectedImpact}
-                    </div>
-                    ${rec.estimatedCost ? `<div style="color: #666; font-size: 0.9em;">
-                        <strong>Cost:</strong> ${rec.estimatedCost}
-                    </div>` : ''}
-                </div>
-            `).join('');
-        }
-
-        // Update anomaly detection
-        function updateAnomalyDetection(anomalies) {
-            if (!anomalies || anomalies.length === 0) {
-                DOM_CACHE.anomalyDetection.innerHTML = '<div style="text-align: center; color: #00c851; font-weight: bold;">✅ No anomalies detected</div>';
-                return;
-            }
-            
-            DOM_CACHE.anomalyDetection.innerHTML = anomalies.map(anomaly => `
-                <div class="anomaly-alert">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                        <strong style="color: #d32f2f;">${anomaly.severity} SEVERITY</strong>
-                        <span style="font-size: 0.8em; color: #666;">
-                            ${new Date(anomaly.detectedAt).toLocaleTimeString()}
-                        </span>
-                    </div>
-                    <div style="margin-bottom: 8px;">
-                        <strong>Location:</strong> ${anomaly.location}
-                    </div>
-                    <div style="margin-bottom: 8px;">
-                        <strong>Type:</strong> ${anomaly.anomalyType}
-                    </div>
-                    <div style="color: #666; font-size: 0.9em;">
-                        <strong>Recommended Action:</strong> ${anomaly.recommendedAction}
+                    <div class="card">
+                        <h2 class="card-title">⚠️ AI Insights</h2>
+                        <div class="metric-grid">
+                            <div class="metric">
+                                <div class="metric-label">Hotspots</div>
+                                <div class="metric-value">${data.aiInsights?.congestionHotspots || '0'}</div>
+                                <div class="metric-label">Affected</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-label">Carbon Impact</div>
+                                <div class="metric-value">${data.aiInsights?.carbonEmissionIndex || 'N/A'}</div>
+                                <div class="metric-label">Index</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            `).join('');
-        }
 
-        // Update citywide summary
-        function updateCitywideSummary(summary) {
-            if (!summary || Object.keys(summary).length === 0) {
-                DOM_CACHE.citywideSummary.innerHTML = '<div class="loading">No summary data available</div>';
-                return;
-            }
-            
-            DOM_CACHE.citywideSummary.innerHTML = `
-                <div style="display: grid; gap: 15px;">
-                    <div>
-                        <strong>Active Vehicles:</strong> ${(summary.totalActiveVehicles || 0).toLocaleString()}
-                    </div>
-                    <div>
-                        <strong>Average City Speed:</strong> ${summary.averageCitySpeed || 'N/A'} km/h
-                    </div>
-                    <div>
-                        <strong>Traffic Health Index:</strong> ${summary.trafficHealthIndex || 'N/A'}/100
-                    </div>
-                    ${summary.congestionDistribution ? `
-                    <div>
-                        <strong>Congestion Distribution:</strong><br>
-                        <div style="margin-left: 15px; margin-top: 5px;">
-                            🔴 Heavy: ${summary.congestionDistribution.Heavy || 0} locations<br>
-                            🟡 Moderate: ${summary.congestionDistribution.Moderate || 0} locations<br>
-                            🟢 Light: ${summary.congestionDistribution.Light || 0} locations
-                        </div>
-                    </div>` : ''}
-                    ${summary.estimatedCommuteTimes ? `
-                    <div>
-                        <strong>Est. Commute Times:</strong><br>
-                        <div style="margin-left: 15px; margin-top: 5px;">
-                            Cross-city: ${summary.estimatedCommuteTimes.crossCity} min<br>
-                            Downtown: ${summary.estimatedCommuteTimes.downtown} min<br>
-                            Suburban: ${summary.estimatedCommuteTimes.suburban} min
-                        </div>
-                    </div>` : ''}
-                    <div>
-                        <strong>Air Quality Impact:</strong> 
-                        <span style="color: ${summary.airQualityImpact === 'Low Impact' ? '#00c851' : 
-                                          summary.airQualityImpact === 'Moderate Impact' ? '#ffaa00' : '#ff4444'};">
-                            ${summary.airQualityImpact || 'Unknown'}
-                        </span>
-                    </div>
+                <!-- Sensor Data -->
+                <div class="card">
+                    <h2 class="card-title">📡 Real-time Sensor Readings</h2>
+                    <ul class="sensor-list">
+                        ${data.sensors?.map(sensor => `
+                            <li class="sensor-item ${sensor.congestionLevel?.toLowerCase() || ''}">
+                                <div class="sensor-header">
+                                    <span class="sensor-name">${sensor.location || sensor.sensorId || 'Unknown Sensor'}</span>
+                                    <span class="sensor-status status-${sensor.congestionLevel?.toLowerCase() || 'light'}">
+                                        ${sensor.congestionLevel || 'Unknown'}
+                                    </span>
+                                </div>
+                                <div class="sensor-details">
+                                    <div class="detail-item">
+                                        <strong>Speed</strong>
+                                        ${sensor.speed !== undefined ? `${sensor.speed} km/h` : 'N/A'}
+                                    </div>
+                                    <div class="detail-item">
+                                        <strong>Vehicles</strong>
+                                        ${sensor.vehicleCount !== undefined ? sensor.vehicleCount : 'N/A'}
+                                    </div>
+                                    <div class="detail-item">
+                                        <strong>AI Score</strong>
+                                        ${sensor.congestionScore || 'N/A'}
+                                    </div>
+                                    <div class="detail-item">
+                                        <strong>Trend</strong>
+                                        ${sensor.predictedTrend || 'Stable'}
+                                    </div>
+                                </div>
+                                ${sensor.isAnomaly ? `
+                                    <div style="margin-top: 10px; padding: 8px; background: #ffebee; border-radius: 4px; color: #d32f2f;">
+                                        ⚠️ Anomaly Detected
+                                    </div>
+                                ` : ''}
+                            </li>
+                        `).join('') || '<li class="loading">No sensor data available</li>'}
+                    </ul>
                 </div>
             `;
+
+            // Add Anomalies section if data exists
+            if (data.anomalies && data.anomalies.length > 0) {
+                html += `
+                    <div class="card">
+                        <h2 class="card-title">🚨 Detected Anomalies</h2>
+                        <ul class="anomaly-list">
+                            ${data.anomalies.map(anomaly => `
+                                <li class="anomaly-item">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                        <strong>${anomaly.location || 'Unknown Location'}</strong>
+                                        <span style="font-size: 0.85em; color: var(--text-secondary);">
+                                            ${new Date(anomaly.detectedAt).toLocaleTimeString()}
+                                        </span>
+                                    </div>
+                                    <div style="margin-bottom: 5px;">
+                                        <strong>Type:</strong> ${anomaly.anomalyType || 'N/A'}
+                                    </div>
+                                    <div>
+                                        <strong>Severity:</strong> ${anomaly.severity || 'Unknown'}
+                                    </div>
+                                    <div style="margin-top: 8px; font-size: 0.9em;">
+                                        <strong>Recommended Action:</strong> ${anomaly.recommendedAction || 'N/A'}
+                                    </div>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+
+            // Add Recommendations section if data exists
+            if (data.recommendations && data.recommendations.length > 0) {
+                html += `
+                    <div class="card">
+                        <h2 class="card-title">🤖 AI Recommendations</h2>
+                        <ul class="recommendation-list">
+                            ${data.recommendations.map(rec => `
+                                <li class="recommendation-item ${rec.priority?.toLowerCase() || ''}">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                        <span class="priority-badge priority-${rec.priority?.toLowerCase() || 'medium'}">
+                                            ${rec.priority || 'MEDIUM'} PRIORITY
+                                        </span>
+                                        <span style="font-size: 0.85em; color: var(--text-secondary);">
+                                            ${rec.aiConfidence ? `${rec.aiConfidence}% confidence` : ''}
+                                        </span>
+                                    </div>
+                                    <div style="margin-bottom: 5px;">
+                                        <strong>${rec.category || 'General'}:</strong> ${rec.action || 'No action specified'}
+                                    </div>
+                                    <div style="font-size: 0.9em;">
+                                        <strong>Expected Impact:</strong> ${rec.expectedImpact || 'N/A'}
+                                    </div>
+                                    ${rec.estimatedCost ? `
+                                        <div style="margin-top: 5px; font-size: 0.9em;">
+                                            <strong>Estimated Cost:</strong> ${rec.estimatedCost}
+                                        </div>
+                                    ` : ''}
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+
+            mainContent.innerHTML = html;
         }
 
-        // Update sensor details
-        function updateSensorDetails(sensors) {
-            if (!sensors || sensors.length === 0) {
-                DOM_CACHE.sensorDetails.innerHTML = '<div class="loading">No sensor data available</div>';
-                return;
-            }
-            
-            DOM_CACHE.sensorDetails.innerHTML = sensors.map(sensor => `
-                <div class="sensor-detail">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                        <h3>${sensor.location}</h3>
-                        <span style="padding: 4px 12px; border-radius: 20px; font-size: 0.85em; color: white; background: ${
-                            sensor.congestionLevel === 'Heavy' ? '#ff4444' : 
-                            sensor.congestionLevel === 'Moderate' ? '#ffaa00' : '#00c851'
-                        };">
-                            ${sensor.congestionLevel}
-                        </span>
-                    </div>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
-                        <div>
-                            <div style="color: #666; font-size: 0.9em;">Current Speed</div>
-                            <div style="font-size: 1.8em; font-weight: bold; color: #667eea;">${sensor.speed} km/h</div>
-                        </div>
-                        <div>
-                            <div style="color: #666; font-size: 0.9em;">Vehicle Count</div>
-                            <div style="font-size: 1.8em; font-weight: bold; color: #667eea;">${sensor.vehicleCount}</div>
-                        </div>
-                        <div>
-                            <div style="color: #666; font-size: 0.9em;">AI Score</div>
-                            <div style="font-size: 1.8em; font-weight: bold; color: #667eea;">${sensor.congestionScore || 'N/A'}</div>
-                        </div>
-                        <div>
-                            <div style="color: #666; font-size: 0.9em;">Trend</div>
-                            <div style="font-size: 1.2em; font-weight: bold; color: ${
-                                sensor.predictedTrend === 'Improving' ? '#00c851' :
-                                sensor.predictedTrend === 'Deteriorating' ? '#ff4444' : '#ffaa00'
-                            };">${sensor.predictedTrend || 'Stable'}</div>
-                        </div>
-                    </div>
-                    ${sensor.isAnomaly ? `
-                    <div style="margin-top: 15px; padding: 10px; background: #ffebee; border-left: 4px solid #f44336; border-radius: 4px;">
-                        <strong style="color: #d32f2f;">⚠️ Anomaly Detected</strong> - This sensor is reporting unusual values
-                    </div>` : ''}
-                    <div style="margin-top: 10px; color: #666; font-size: 0.85em;">
-                        Last updated: ${new Date(sensor.timestamp).toLocaleString()}
-                        ${sensor.dataPoints ? ` • ${sensor.dataPoints} data points processed` : ''}
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // Update alerts
-        function updateAlerts(data) {
-            let hasAlert = false;
-            let alertText = '';
-            
-            // Check for critical recommendations
-            if (data.recommendations) {
-                const criticalRecs = data.recommendations.filter(r => r.priority === 'CRITICAL');
-                if (criticalRecs.length > 0) {
-                    hasAlert = true;
-                    alertText = criticalRecs[0].action;
-                }
-            }
-            
-            // Check for anomalies
-            if (!hasAlert && data.anomalies && data.anomalies.length > 0) {
-                hasAlert = true;
-                alertText = `${data.anomalies.length} traffic anomal${data.anomalies.length === 1 ? 'y' : 'ies'} detected`;
-            }
-            
-            // Check for high congestion
-            if (!hasAlert && data.sensors) {
-                const heavyCongestion = data.sensors.filter(s => s.congestionLevel === 'Heavy');
-                if (heavyCongestion.length > 0) {
-                    hasAlert = true;
-                    alertText = `Heavy congestion detected at ${heavyCongestion.map(s => s.location).join(', ')}`;
-                }
-            }
-            
-            if (hasAlert) {
-                DOM_CACHE.alertBanner.classList.add('active');
-                DOM_CACHE.alertMessage.textContent = alertText;
-            } else {
-                DOM_CACHE.alertBanner.classList.remove('active');
-            }
+        // Helper function to calculate total vehicles
+        function calculateTotalVehicles(sensors) {
+            if (!sensors || !Array.isArray(sensors)) return 0;
+            return sensors.reduce((total, sensor) => total + (sensor.vehicleCount || 0), 0).toLocaleString();
         }
 
         // Update data periodically
         async function updateData() {
             try {
                 const data = await fetchTrafficData();
-                if (data) {
-                    updateDashboard(data);
-                    
-                    // Update connection status
-                    DOM_CACHE.cosmosStatus.style.color = '#00c851';
-                    DOM_CACHE.cosmosStatus.textContent = 'Active';
-                    DOM_CACHE.aiStatus.style.color = '#00c851';
-                    DOM_CACHE.aiStatus.textContent = 'Online';
-                }
+                renderDashboard(data);
             } catch (error) {
-                console.error('Error updating data:', error);
-                
-                // Update status indicators to show error
-                DOM_CACHE.cosmosStatus.style.color = '#ff4444';
-                DOM_CACHE.cosmosStatus.textContent = 'Error';
-                DOM_CACHE.aiStatus.style.color = '#ff4444';
-                DOM_CACHE.aiStatus.textContent = 'Offline';
+                console.error('Error updating dashboard:', error);
+                mainContent.innerHTML = `
+                    <div class="error">
+                        Error updating dashboard: ${error.message}
+                    </div>
+                `;
             }
         }
 
@@ -736,30 +500,13 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Initializing Smart Traffic Dashboard...');
             
-            // Initialize map
-            initializeMap();
-            
             // Initial data load
             updateData();
             
             // Update data periodically
             setInterval(updateData, CONFIG.UPDATE_INTERVAL);
             
-            // Update time display
-            setInterval(() => {
-                document.title = `🚦 Traffic Dashboard - ${new Date().toLocaleTimeString()}`;
-            }, 1000);
-            
             console.log('Dashboard initialized successfully!');
-        });
-
-        // Handle window resize
-        window.addEventListener('resize', function() {
-            if (map) {
-                setTimeout(() => {
-                    map.invalidateSize();
-                }, 100);
-            }
         });
     </script>
 </body>
