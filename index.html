@@ -2,93 +2,65 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Smart Traffic Dashboard</title>
+  <title>Smart Traffic Live Dashboard</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      background: #f5f7fa;
-    }
-    h1 { text-align: center; }
-    .status { text-align: center; margin-bottom: 20px; }
-    .sensors, .insights, .anomalies {
-      margin: 20px auto;
-      max-width: 900px;
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
-    .sensor-card {
-      border-bottom: 1px solid #eee;
-      padding: 10px 0;
-    }
-    .sensor-card:last-child { border-bottom: none; }
-    .anomaly { color: red; font-weight: bold; }
+    body { font-family:sans-serif; background:#f7f9fc; margin:0; padding:20px; }
+    h1 { text-align:center; }
+    .summary, .sensors {max-width:900px; margin:20px auto; padding:15px; background:white; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,.1);}
+    .sensor { border-bottom:1px solid #eee; padding:10px 0; }
+    .sensor:last-child { border:0; }
+    .heavy { color:red; font-weight:bold; }
+    .moderate { color:orange; }
+    .light { color:green; }
+    .anomaly { background:#ffe0e0; padding:5px; border-radius:5px; }
   </style>
 </head>
 <body>
   <h1>🚦 Smart Traffic Dashboard</h1>
-  <div class="status">
-    <span id="statusText">Loading data...</span>
+  <div id="status">Loading...</div>
+  <div class="summary">
+    <h2>Summary</h2>
+    <div id="summary"></div>
   </div>
-
-  <div class="insights">
-    <h2>AI Insights</h2>
-    <pre id="aiInsights">-</pre>
-  </div>
-
   <div class="sensors">
-    <h2>Live Sensors</h2>
-    <div id="sensorList">-</div>
+    <h2>Sensors</h2>
+    <div id="sensors"></div>
   </div>
-
-  <div class="anomalies">
-    <h2>Anomalies</h2>
-    <div id="anomaliesList">-</div>
-  </div>
-
 <script>
-const API_URL = "https://smarttrafficbiphin-hqeadtdjfwe8ehb4.westeurope-01.azurewebsites.net/api/GetTrafficInsights";
+const API_URL = "https://<your-function-app>.azurewebsites.net/api/GetTrafficInsights";
 
-async function loadData() {
-  document.getElementById("statusText").textContent = "⏳ Updating...";
-
+async function load() {
+  document.getElementById("status").textContent = "⏳ Fetching data...";
   try {
     const res = await fetch(API_URL);
     const data = await res.json();
+    document.getElementById("status").textContent = "✅ Updated: "+new Date(data.timestamp).toLocaleTimeString();
 
-    document.getElementById("statusText").textContent =
-      "✅ Data source: " + data.dataSource + " • " + new Date(data.timestamp).toLocaleString();
+    // summary
+    document.getElementById("summary").innerHTML = `
+      Total Sensors: ${data.summary.totalSensors}<br>
+      Average Speed: ${data.summary.averageSpeed} km/h<br>
+      Average Vehicles: ${data.summary.averageVehicles}<br>
+      Anomalies: ${data.summary.anomalies}
+    `;
 
-    // Render insights
-    document.getElementById("aiInsights").textContent = JSON.stringify(data.aiInsights, null, 2);
-
-    // Render sensors
-    const sensorHTML = data.sensors.map(s => `
-      <div class="sensor-card">
+    // sensors
+    document.getElementById("sensors").innerHTML = data.sensors.map(s=>`
+      <div class="sensor ${s.isAnomaly ? 'anomaly':''}">
         <strong>${s.location}</strong> (ID: ${s.sensorId})<br>
-        Speed: ${s.speed} km/h • Vehicles: ${s.vehicleCount} • Congestion: ${s.congestionLevel}
+        Speed: ${s.speed} km/h | Vehicles: ${s.vehicleCount}<br>
+        Congestion: <span class="${s.congestionLevel.toLowerCase()}">${s.congestionLevel}</span><br>
+        Weather: ${s.weatherCondition}, Road: ${s.roadCondition}, Visibility: ${s.visibility}%
       </div>
-    `).join("");
-    document.getElementById("sensorList").innerHTML = sensorHTML || "No sensors available";
+    `).join('');
 
-    // Render anomalies
-    const anomaliesHTML = (data.anomalies || []).map(a => `
-      <div class="sensor-card anomaly">
-        ⚠ ${a.location} (${a.anomalyType}) • Severity: ${a.severity}
-      </div>
-    `).join("");
-    document.getElementById("anomaliesList").innerHTML = anomaliesHTML || "No anomalies";
-
-  } catch (err) {
-    document.getElementById("statusText").textContent = "❌ Error loading data: " + err;
+  } catch(err){
+    document.getElementById("status").textContent = "❌ Error: "+err;
   }
 }
 
-// Initial load + auto refresh every 15s
-loadData();
-setInterval(loadData, 15000);
+load();
+setInterval(load, 15000); // refresh every 15s
 </script>
 </body>
 </html>
