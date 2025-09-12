@@ -13,50 +13,52 @@
             --warning: #f39c12;
             --danger: #e74c3c;
             --dark: #2c3e50;
+            --light: #ecf0f1;
             --shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
         * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: var(--light-bg);
-            margin: 0;
-            padding: 20px;
-            color: #333;
+            color: var(--dark);
+            line-height: 1.6;
         }
 
         header {
+            background: linear-gradient(135deg, var(--primary), #2980b9);
+            color: white;
             text-align: center;
-            margin-bottom: 20px;
+            padding: 1.5rem 1rem;
+            box-shadow: var(--shadow);
         }
 
         h1 {
-            margin: 0 0 10px;
-            color: var(--dark);
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
         }
 
         #status {
-            text-align: center;
-            margin-bottom: 20px;
-            padding: 10px;
-            border-radius: 5px;
-            background: var(--card-bg);
-            box-shadow: var(--shadow);
+            font-size: 1rem;
+            opacity: 0.9;
         }
 
         .container {
             max-width: 1200px;
-            margin: 0 auto;
+            margin: 20px auto;
+            padding: 0 20px;
         }
 
         .summary,
         .sensors {
-            margin: 20px 0;
             background: var(--card-bg);
-            padding: 20px;
+            margin: 20px 0;
+            padding: 25px;
             border-radius: 12px;
             box-shadow: var(--shadow);
         }
@@ -64,51 +66,136 @@
         .summary h2,
         .sensors h2 {
             margin-top: 0;
+            margin-bottom: 20px;
             color: var(--dark);
-            border-bottom: 2px solid #eee;
+            border-bottom: 2px solid var(--light);
             padding-bottom: 10px;
         }
 
         .summary-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
         }
 
         .summary-item {
-            background: #f9fafc;
+            background: var(--light);
             padding: 20px;
-            border-radius: 8px;
+            border-radius: 10px;
             text-align: center;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
         }
 
-        .summary-item h3 {
-            margin: 0 0 10px;
-            font-size: 1em;
+        .summary-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .summary-item strong {
+            display: block;
+            font-size: 1.8em;
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+
+        .summary-item span {
+            font-size: 0.9em;
             color: #7f8c8d;
         }
 
-        .summary-item .value {
-            display: block;
-            font-size: 2em;
-            font-weight: bold;
-            color: var(--dark);
+        .sensors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
         }
 
+        .sensor-card {
+            border: 1px solid #eee;
+            border-radius: 10px;
+            padding: 20px;
+            background: var(--card-bg);
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .sensor-card:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-3px);
+        }
+
+        .sensor-card.anomaly {
+            border: 2px solid var(--danger);
+            background: #ffecec;
+        }
+
+        .sensor-card h3 {
+            margin-top: 0;
+            color: var(--primary);
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .sensor-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .sensor-detail {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sensor-detail strong {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            margin-bottom: 3px;
+        }
+
+        .sensor-detail span {
+            font-weight: 500;
+        }
+
+        .light {
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        .moderate {
+            color: var(--warning);
+            font-weight: bold;
+        }
+
+        .heavy {
+            color: var(--danger);
+            font-weight: bold;
+        }
+
+        .improving {
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        .deteriorating {
+            color: var(--danger);
+            font-weight: bold;
+        }
+
+        .stable {
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        /* Traffic Index Styles */
         .traffic-index-container {
             grid-column: 1 / -1;
-        }
-
-        .traffic-index {
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            text-align: center;
             padding: 15px;
-            border-radius: 8px;
-            font-size: 1.8em;
-            font-weight: bold;
+            border-radius: 10px;
+            margin-bottom: 20px;
             color: white;
+            font-weight: bold;
         }
 
         .traffic-index.light {
@@ -123,323 +210,251 @@
             background: linear-gradient(135deg, #e74c3c, #c0392b);
         }
 
-        .sensors-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+        .traffic-index-value {
+            font-size: 2.5em;
+            margin: 10px 0;
         }
 
-        .sensor-card {
-            border: 1px solid #eee;
-            border-radius: 10px;
-            padding: 20px;
-            background: var(--card-bg);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .sensor-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .sensor-card.anomaly {
-            border: 2px solid var(--danger);
-            background: #ffecec;
-        }
-
-        .sensor-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .sensor-header h3 {
-            margin: 0;
-            color: var(--dark);
-        }
-
-        .sensor-badge {
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.8em;
-            font-weight: bold;
-        }
-
-        .badge-anomaly {
-            background: var(--danger);
-            color: white;
-        }
-
-        .sensor-details {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .sensor-detail {
-            margin: 5px 0;
-        }
-
-        .sensor-detail strong {
-            display: block;
-            font-size: 0.9em;
-            color: #7f8c8d;
-        }
-
-        .sensor-value {
-            font-size: 1.1em;
-            font-weight: 600;
-        }
-
-        .congestion-light { color: var(--success); }
-        .congestion-moderate { color: var(--warning); }
-        .congestion-heavy { color: var(--danger); }
-
-        .sensor-score {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #eee;
-            font-size: 1.2em;
-            font-weight: bold;
-            color: var(--primary);
-            text-align: center;
-        }
-
-        .refresh-btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            margin: 10px auto;
-            display: block;
-        }
-
-        .refresh-btn:hover {
-            background: #2980b9;
-        }
-
+        /* Responsive adjustments */
         @media (max-width: 768px) {
-            .summary-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-            
-            .traffic-index-container {
-                grid-column: 1 / 3;
-            }
-            
+            .summary-grid,
             .sensors-grid {
                 grid-template-columns: 1fr;
             }
-        }
-
-        @media (max-width: 480px) {
-            .summary-grid {
+            
+            .sensor-details {
                 grid-template-columns: 1fr;
             }
             
-            .traffic-index-container {
-                grid-column: 1;
+            h1 {
+                font-size: 1.8rem;
             }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .metric-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+
+        .badge-success {
+            background: rgba(46, 204, 113, 0.2);
+            color: #27ae60;
+        }
+
+        .badge-warning {
+            background: rgba(243, 156, 18, 0.2);
+            color: #d35400;
+        }
+
+        .badge-danger {
+            background: rgba(231, 76, 60, 0.2);
+            color: #c0392b;
         }
     </style>
 </head>
 
 <body>
-    <div class="container">
-        <header>
-            <h1>🚦 Smart Traffic Dashboard</h1>
-            <div id="status">Loading...</div>
-            <button id="refresh-btn" class="refresh-btn">Refresh Data</button>
-        </header>
+    <header>
+        <h1>🚦 Smart Traffic Dashboard</h1>
+        <div id="status">Initializing...</div>
+    </header>
 
-        <section class="summary">
-            <h2>Traffic Overview</h2>
+    <div class="container">
+        <div class="summary">
+            <h2>System Overview</h2>
             <div id="summary" class="summary-grid">
-                <!-- Traffic Index Display -->
-                <div class="traffic-index-container">
-                    <div id="traffic-index" class="traffic-index">Calculating...</div>
-                </div>
-                
-                <div class="summary-item">
-                    <h3>Sensors Active</h3>
-                    <span id="total-sensors" class="value">0</span>
-                </div>
-                
-                <div class="summary-item">
-                    <h3>Avg Speed</h3>
-                    <span id="avg-speed" class="value">0</span>
-                    <small>km/h</small>
-                </div>
-                
-                <div class="summary-item">
-                    <h3>Avg Vehicles</h3>
-                    <span id="avg-vehicles" class="value">0</span>
-                </div>
-                
-                <div class="summary-item">
-                    <h3>Anomalies</h3>
-                    <span id="anomalies" class="value">0</span>
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading traffic data...</p>
                 </div>
             </div>
-        </section>
+        </div>
 
-        <section class="sensors">
-            <h2>Live Sensors</h2>
-            <div id="sensors" class="sensors-grid"></div>
-        </section>
+        <div class="sensors">
+            <h2>Live Sensor Data</h2>
+            <div id="sensors" class="sensors-grid">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading sensor information...</p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
-        // Configuration
         const API_URL = "https://smarttrafficbiphin-hqeadtdjfwe8ehb4.westeurope-01.azurewebsites.net/api/GetTrafficInsights?code=-4rdi9I39NRfVETUI8c81Iid3iC7-E1KkqCJsYatgZa1AzFuHy5W8g==";
-        const REFRESH_INTERVAL = 15000; // 15 seconds
 
-        // DOM Elements
-        const statusEl = document.getElementById("status");
-        const refreshBtn = document.getElementById("refresh-btn");
-        const trafficIndexEl = document.getElementById("traffic-index");
-        const totalSensorsEl = document.getElementById("total-sensors");
-        const avgSpeedEl = document.getElementById("avg-speed");
-        const avgVehiclesEl = document.getElementById("avg-vehicles");
-        const anomaliesEl = document.getElementById("anomalies");
-        const sensorsEl = document.getElementById("sensors");
-
-        // State
-        let refreshInterval;
-
-        // Helper Functions
-        function updateStatus(message, isError = false) {
-            statusEl.textContent = message;
-            statusEl.style.backgroundColor = isError ? '#ffecec' : '#f9fafc';
-            statusEl.style.color = isError ? '#c0392b' : '#2c3e50';
-        }
-
-        function getTrafficIndexClass(index) {
-            if (index > 70) return 'heavy';
-            if (index > 40) return 'moderate';
-            return 'light';
-        }
-
-        function getCongestionClass(level) {
-            return `congestion-${level.toLowerCase()}`;
-        }
-
-        // Data Processing
-        async function fetchData() {
-            updateStatus("⏳ Fetching data...");
-            
+        async function load() {
+            document.getElementById("status").textContent = "⏳ Fetching real-time data...";
             try {
-                const response = await fetch(API_URL);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                const res = await fetch(API_URL);
+                const data = await res.json();
+                document.getElementById("status").innerHTML = 
+                    `✅ Last updated: ${new Date(data.timestamp).toLocaleTimeString()} 
+                     <span class="metric-badge badge-success">Operational</span>`;
+
+                // Traffic Index Display
+                const trafficIndex = data.summary.trafficIndex;
+                let trafficClass = 'light';
+                if (trafficIndex > 70) {
+                    trafficClass = 'heavy';
+                } else if (trafficIndex > 40) {
+                    trafficClass = 'moderate';
                 }
-                
-                const data = await response.json();
-                updateStatus(`✅ Updated: ${new Date(data.timestamp).toLocaleTimeString()}`);
-                renderDashboard(data);
-            } catch (error) {
-                console.error("Fetch error:", error);
-                updateStatus(`❌ Error: ${error.message}`, true);
+
+                // Summary Section
+                document.getElementById("summary").innerHTML = `
+                    <div class="traffic-index-container traffic-index ${trafficClass}">
+                        <div>OVERALL TRAFFIC INDEX</div>
+                        <div class="traffic-index-value">${trafficIndex}</div>
+                        <div>${trafficClass.charAt(0).toUpperCase() + trafficClass.slice(1)} Traffic Conditions</div>
+                    </div>
+                    
+                    <div class="summary-item">
+                        <strong>${data.summary.totalSensors}</strong>
+                        <span>Sensors Active</span>
+                    </div>
+                    
+                    <div class="summary-item">
+                        <strong>${data.summary.averageSpeed} <small>km/h</small></strong>
+                        <span>Avg Speed</span>
+                    </div>
+                    
+                    <div class="summary-item">
+                        <strong>${data.summary.averageVehicles}</strong>
+                        <span>Avg Vehicles</span>
+                    </div>
+                    
+                    <div class="summary-item">
+                        <strong>${data.summary.anomalies}</strong>
+                        <span>Anomalies Detected</span>
+                    </div>
+                    
+                    <div class="summary-item">
+                        <strong>${data.summary.averageResponseTime}<small>ms</small></strong>
+                        <span>Avg Response Time</span>
+                    </div>
+                    
+                    <div class="summary-item">
+                        <strong>${data.summary.sensorHealth}%</strong>
+                        <span>Sensor Health</span>
+                    </div>
+                `;
+
+                // Sensors Section
+                document.getElementById("sensors").innerHTML = data.sensors.map(s => `
+                    <div class="sensor-card ${s.isAnomaly ? "anomaly" : ""}">
+                        <h3>${s.location}</h3>
+                        
+                        <div class="sensor-details">
+                            <div class="sensor-detail">
+                                <strong>Speed</strong>
+                                <span>${s.speed} km/h</span>
+                            </div>
+                            
+                            <div class="sensor-detail">
+                                <strong>Vehicles</strong>
+                                <span>${s.vehicleCount}</span>
+                            </div>
+                            
+                            <div class="sensor-detail">
+                                <strong>Congestion</strong>
+                                <span class="${s.congestionLevel.toLowerCase()}">${s.congestionLevel}</span>
+                            </div>
+                            
+                            <div class="sensor-detail">
+                                <strong>Trend</strong>
+                                <span class="${s.trend}">${s.trend}</span>
+                            </div>
+                            
+                            <div class="sensor-detail">
+                                <strong>Weather</strong>
+                                <span>${s.weatherCondition}</span>
+                            </div>
+                            
+                            <div class="sensor-detail">
+                                <strong>Road</strong>
+                                <span>${s.roadCondition}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="sensor-details">
+                            <div class="sensor-detail">
+                                <strong>Air Quality</strong>
+                                <span>${s.airQualityIndex} AQI</span>
+                            </div>
+                            
+                            <div class="sensor-detail">
+                                <strong>Noise</strong>
+                                <span>${s.noiseLevel} dB</span>
+                            </div>
+                            
+                            <div class="sensor-detail">
+                                <strong>Pedestrians</strong>
+                                <span>${s.pedestrianCount}</span>
+                            </div>
+                            
+                            <div class="sensor-detail">
+                                <strong>Visibility</strong>
+                                <span>${s.visibility}%</span>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee;">
+                            <strong>Traffic Score: <span class="metric-badge badge-${getScoreBadgeClass(s.sensorTrafficScore)}">${s.sensorTrafficScore}/100</span></strong>
+                        </div>
+                    </div>
+                `).join("");
+            } catch (err) {
+                document.getElementById("status").innerHTML = 
+                    `❌ Error: ${err.message} <span class="metric-badge badge-danger">Connection Failed</span>`;
+                document.getElementById("summary").innerHTML = `
+                    <div class="summary-item" style="grid-column: 1 / -1; text-align: center;">
+                        <strong style="color: var(--danger);">Failed to load data</strong>
+                        <span>Please check your connection and API endpoint</span>
+                    </div>
+                `;
+                document.getElementById("sensors").innerHTML = "";
             }
         }
 
-        function renderDashboard(data) {
-            // Update summary
-            const { summary, sensors } = data;
-            
-            // Traffic Index
-            const trafficIndex = summary.trafficIndex;
-            const trafficClass = getTrafficIndexClass(trafficIndex);
-            trafficIndexEl.innerHTML = `Overall Traffic Index: <span class="${trafficClass}">${trafficIndex}</span>`;
-            trafficIndexEl.className = `traffic-index ${trafficClass}`;
-            
-            // Summary items
-            totalSensorsEl.textContent = summary.totalSensors;
-            avgSpeedEl.textContent = summary.averageSpeed;
-            avgVehiclesEl.textContent = summary.averageVehicles;
-            anomaliesEl.textContent = summary.anomalies;
-            
-            // Sensors
-            sensorsEl.innerHTML = sensors.map(sensor => `
-                <div class="sensor-card ${sensor.isAnomaly ? "anomaly" : ""}">
-                    <div class="sensor-header">
-                        <h3>${sensor.location}</h3>
-                        ${sensor.isAnomaly ? '<span class="sensor-badge badge-anomaly">ANOMALY</span>' : ''}
-                    </div>
-                    
-                    <div class="sensor-details">
-                        <div class="sensor-detail">
-                            <strong>Speed</strong>
-                            <span class="sensor-value">${sensor.speed} km/h</span>
-                        </div>
-                        
-                        <div class="sensor-detail">
-                            <strong>Vehicles</strong>
-                            <span class="sensor-value">${sensor.vehicleCount}</span>
-                        </div>
-                        
-                        <div class="sensor-detail">
-                            <strong>Congestion</strong>
-                            <span class="sensor-value ${getCongestionClass(sensor.congestionLevel)}">${sensor.congestionLevel}</span>
-                        </div>
-                        
-                        <div class="sensor-detail">
-                            <strong>Weather</strong>
-                            <span class="sensor-value">${sensor.weatherCondition}</span>
-                        </div>
-                        
-                        <div class="sensor-detail">
-                            <strong>Road</strong>
-                            <span class="sensor-value">${sensor.roadCondition}</span>
-                        </div>
-                        
-                        <div class="sensor-detail">
-                            <strong>Visibility</strong>
-                            <span class="sensor-value">${sensor.visibility}%</span>
-                        </div>
-                    </div>
-                    
-                    <div class="sensor-score">
-                        Traffic Score: ${sensor.sensorTrafficScore}
-                    </div>
-                </div>
-            `).join("");
+        function getScoreBadgeClass(score) {
+            const s = parseInt(score);
+            if (s >= 70) return 'success';
+            if (s >= 40) return 'warning';
+            return 'danger';
         }
 
-        // Event Handlers
-        function startAutoRefresh() {
-            if (refreshInterval) clearInterval(refreshInterval);
-            refreshInterval = setInterval(fetchData, REFRESH_INTERVAL);
-        }
-
-        function stopAutoRefresh() {
-            if (refreshInterval) {
-                clearInterval(refreshInterval);
-                refreshInterval = null;
-            }
-        }
-
-        // Initialize
-        refreshBtn.addEventListener("click", fetchData);
-        
         // Initial load
-        fetchData().then(() => {
-            startAutoRefresh();
-        });
-
-        // Handle page visibility changes
-        document.addEventListener("visibilitychange", () => {
-            if (document.hidden) {
-                stopAutoRefresh();
-            } else {
-                fetchData().then(startAutoRefresh);
-            }
-        });
+        load();
+        
+        // Refresh every 15 seconds
+        setInterval(load, 15000);
     </script>
 </body>
 </html>
