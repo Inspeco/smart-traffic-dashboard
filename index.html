@@ -1,32 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Smart Traffic Live Dashboard</title>
-  <style>
-    body { font-family:sans-serif; background:#f7f9fc; margin:0; padding:20px; }
-    h1 { text-align:center; }
-    .summary, .sensors {max-width:900px; margin:20px auto; padding:15px; background:white; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,.1);}
-    .sensor { border-bottom:1px solid #eee; padding:10px 0; }
-    .sensor:last-child { border:0; }
-    .heavy { color:red; font-weight:bold; }
-    .moderate { color:orange; }
-    .light { color:green; }
-    .anomaly { background:#ffe0e0; padding:5px; border-radius:5px; }
-  </style>
+<meta charset="UTF-8">
+<title>Smart Traffic Live Dashboard</title>
+<style>
+  body { font-family:Arial, sans-serif; background:#f0f3f9; margin:0; padding:20px; }
+  h1 { text-align:center; margin-bottom:10px; }
+  #status { text-align:center; margin-bottom:20px; }
+  .summary, .sensors { max-width:1000px; margin:20px auto; background:white; padding:20px; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,.1); }
+  .summary h2, .sensors h2 { margin-top:0; }
+  .summary-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:15px; }
+  .summary-item { background:#f9fafc; padding:15px; border-radius:8px; text-align:center; }
+  .summary-item strong { display:block; font-size:1.4em; color:#2c3e50; }
+  .sensors-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:15px; }
+  .sensor-card { border:1px solid #eee; border-radius:10px; padding:15px; background:#fff; }
+  .sensor-card.anomaly { border:2px solid red; background:#ffecec; }
+  .light { color:green; font-weight:bold; }
+  .moderate { color:orange; font-weight:bold; }
+  .heavy { color:red; font-weight:bold; }
+</style>
 </head>
 <body>
-  <h1>🚦 Smart Traffic Dashboard</h1>
-  <div id="status">Loading...</div>
-  <div class="summary">
-    <h2>Summary</h2>
-    <div id="summary"></div>
-  </div>
-  <div class="sensors">
-    <h2>Sensors</h2>
-    <div id="sensors"></div>
-  </div>
+<h1>🚦 Smart Traffic Dashboard</h1>
+<div id="status">Loading...</div>
+
+<div class="summary">
+  <h2>Summary</h2>
+  <div id="summary" class="summary-grid"></div>
+</div>
+
+<div class="sensors">
+  <h2>Live Sensors</h2>
+  <div id="sensors" class="sensors-grid"></div>
+</div>
+
 <script>
+// 🔑 Your real Function App URL
 const API_URL = "https://smarttrafficbiphin-hqeadtdjfwe8ehb4.westeurope-01.azurewebsites.net/api/GetTrafficInsights?code=Yb16W9Nu0jltY_40x4e_I_E-pJ4gAy7kUBNejE3qNV3YAzFuVfns2Q==";
 
 async function load() {
@@ -34,28 +43,30 @@ async function load() {
   try {
     const res = await fetch(API_URL);
     const data = await res.json();
-    document.getElementById("status").textContent = "✅ Updated: "+new Date(data.timestamp).toLocaleTimeString();
+    document.getElementById("status").textContent =
+      "✅ Updated: " + new Date(data.timestamp).toLocaleTimeString();
 
     // summary
     document.getElementById("summary").innerHTML = `
-      Total Sensors: ${data.summary.totalSensors}<br>
-      Average Speed: ${data.summary.averageSpeed} km/h<br>
-      Average Vehicles: ${data.summary.averageVehicles}<br>
-      Anomalies: ${data.summary.anomalies}
+      <div class="summary-item"><strong>${data.summary.totalSensors}</strong>Sensors Active</div>
+      <div class="summary-item"><strong>${data.summary.averageSpeed} km/h</strong>Avg Speed</div>
+      <div class="summary-item"><strong>${data.summary.averageVehicles}</strong>Avg Vehicles</div>
+      <div class="summary-item"><strong>${data.summary.anomalies}</strong>Anomalies</div>
     `;
 
     // sensors
-    document.getElementById("sensors").innerHTML = data.sensors.map(s=>`
-      <div class="sensor ${s.isAnomaly ? 'anomaly':''}">
-        <strong>${s.location}</strong> (ID: ${s.sensorId})<br>
-        Speed: ${s.speed} km/h | Vehicles: ${s.vehicleCount}<br>
-        Congestion: <span class="${s.congestionLevel.toLowerCase()}">${s.congestionLevel}</span><br>
-        Weather: ${s.weatherCondition}, Road: ${s.roadCondition}, Visibility: ${s.visibility}%
+    document.getElementById("sensors").innerHTML = data.sensors.map(s => `
+      <div class="sensor-card ${s.isAnomaly ? "anomaly" : ""}">
+        <h3>${s.location}</h3>
+        <p><strong>Speed:</strong> ${s.speed} km/h</p>
+        <p><strong>Vehicles:</strong> ${s.vehicleCount}</p>
+        <p><strong>Congestion:</strong> <span class="${s.congestionLevel.toLowerCase()}">${s.congestionLevel}</span></p>
+        <p><strong>Weather:</strong> ${s.weatherCondition} | <strong>Road:</strong> ${s.roadCondition}</p>
+        <p><strong>Visibility:</strong> ${s.visibility}%</p>
       </div>
-    `).join('');
-
-  } catch(err){
-    document.getElementById("status").textContent = "❌ Error: "+err;
+    `).join("");
+  } catch(err) {
+    document.getElementById("status").textContent = "❌ Error: " + err;
   }
 }
 
