@@ -53,5 +53,811 @@
             font-size: 3em;
             font-weight: bold;
             color: #667eea;
-            margin: 
-\<Streaming stoppped because the conversation grew too long for this model\>
+                        margin: 15px 0;
+        }
+        .metric-label {
+            color: #666;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+        .ai-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        .status-excellent { color: #00C851 !important; }
+        .status-good { color: #4CAF50 !important; }
+        .status-fair { color: #ffaa00 !important; }
+        .status-poor { color: #ff4444 !important; }
+        .status-heavy { color: #ff4444 !important; }
+        .status-moderate { color: #ffaa00 !important; }
+        .status-light { color: #00C851 !important; }
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #00c851;
+            color: white;
+            border-radius: 25px;
+            font-size: 0.9em;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        .alert-banner {
+            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+            color: white;
+            padding: 18px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            display: none;
+            animation: slideDown 0.5s ease-out;
+        }
+        .alert-banner.active {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .two-cols {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        .three-cols {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        #trafficMap {
+            height: 450px;
+            border-radius: 12px;
+        }
+        .recommendation {
+            padding: 18px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border-left: 5px solid;
+        }
+        .recommendation.critical {
+            background: #ffebee;
+            border-color: #f44336;
+        }
+        .recommendation.high {
+            background: #fff8e1;
+            border-color: #ff9800;
+        }
+        .recommendation.medium {
+            background: #e3f2fd;
+            border-color: #2196f3;
+        }
+        .sensor-detail {
+            padding: 20px;
+            margin: 15px 0;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+        }
+        .anomaly-alert {
+            padding: 15px;
+            margin: 10px 0;
+            background: #ffebee;
+            border-left: 5px solid #f44336;
+            border-radius: 8px;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .data-source {
+            font-size: 0.8em;
+            color: #999;
+            text-align: right;
+            margin-top: 10px;
+        }
+        @media (max-width: 768px) {
+            .dashboard { padding: 10px; }
+            .two-cols, .three-cols { grid-template-columns: 1fr; }
+            .metric-value { font-size: 2.2em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Header Section -->
+        <div class="header">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                <div>
+                    <h1>🚦 Smart City Traffic Management System</h1>
+                    <p style="color: #666; margin-top: 8px;">
+                        AI-Powered Real-time Traffic Monitoring & Optimization • ICT200 Assessment 3
+                    </p>
+                </div>
+                <div class="live-indicator">
+                    <span style="width: 10px; height: 10px; background: white; border-radius: 50%; animation: blink 1s infinite;"></span>
+                    LIVE DATA
+                </div>
+            </div>
+        </div>
+
+        <!-- Alert Banner -->
+        <div class="alert-banner" id="alertBanner">
+            <span style="font-size: 1.5em;">⚠️</span>
+            <div>
+                <strong>AI TRAFFIC ALERT:</strong>
+                <div id="alertMessage">Monitoring traffic conditions...</div>
+            </div>
+        </div>
+
+        <!-- Main Metrics Grid -->
+        <div class="metrics-grid">
+            <div class="card metric-card">
+                <div class="ai-badge">AI</div>
+                <div class="metric-label">Traffic Health Index</div>
+                <div class="metric-value" id="trafficHealth">85</div>
+                <div style="color: #666; font-size: 0.85em;" id="healthStatus">Good</div>
+            </div>
+            
+            <div class="card metric-card">
+                <div class="metric-label">Active Sensors</div>
+                <div class="metric-value" id="activeSensors">3</div>
+                <div style="color: #666; font-size: 0.85em;">Real-time monitoring</div>
+            </div>
+            
+            <div class="card metric-card">
+                <div class="ai-badge">AI</div>
+                <div class="metric-label">Avg City Speed</div>
+                <div class="metric-value" id="avgSpeed">45</div>
+                <div style="color: #666; font-size: 0.85em;">km/h citywide</div>
+            </div>
+            
+            <div class="card metric-card">
+                <div class="metric-label">Total Vehicles</div>
+                <div class="metric-value" id="totalVehicles">1,247</div>
+                <div style="color: #666; font-size: 0.85em;">Currently monitored</div>
+            </div>
+            
+            <div class="card metric-card">
+                <div class="ai-badge">AI</div>
+                <div class="metric-label">Congestion Hotspots</div>
+                <div class="metric-value status-moderate" id="congestionHotspots">1</div>
+                <div style="color: #666; font-size: 0.85em;">Locations affected</div>
+            </div>
+            
+            <div class="card metric-card">
+                <div class="ai-badge">AI</div>
+                <div class="metric-label">Carbon Impact</div>
+                <div class="metric-value" id="carbonImpact">Moderate</div>
+                <div style="color: #666; font-size: 0.85em;">Air quality effect</div>
+            </div>
+        </div>
+
+        <!-- Traffic Map -->
+        <div class="card">
+            <h2>🗺️ Live Traffic Map <span class="ai-badge">AI</span></h2>
+            <div id="trafficMap"></div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="two-cols">
+            <div class="card">
+                <h2>📊 AI Traffic Predictions <span class="ai-badge">AI</span></h2>
+                <canvas id="predictionChart" height="300"></canvas>
+                <div class="data-source">ML Model: Neural Traffic Predictor v2.1</div>
+            </div>
+            
+            <div class="card">
+                <h2>⚡ Real-time Speed Analysis</h2>
+                <canvas id="speedChart" height="300"></canvas>
+            </div>
+        </div>
+
+        <!-- AI Insights Section -->
+        <div class="three-cols">
+            <div class="card">
+                <h2>🤖 AI Recommendations</h2>
+                <div id="aiRecommendations" class="loading">Loading AI recommendations...</div>
+            </div>
+            
+            <div class="card">
+                <h2>🚨 Anomaly Detection <span class="ai-badge">AI</span></h2>
+                <div id="anomalyDetection">No anomalies detected</div>
+            </div>
+            
+            <div class="card">
+                <h2>🏙️ Citywide Summary</h2>
+                <div id="citywideSummary" class="loading">Calculating city metrics...</div>
+            </div>
+        </div>
+
+        <!-- Sensor Details -->
+        <div class="card">
+            <h2>📡 Sensor Network Status</h2>
+            <div id="sensorDetails" class="loading">Loading sensor data...</div>
+        </div>
+
+        <!-- Data Source Info -->
+        <div class="card">
+            <h3>📊 Data Pipeline Status</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                <div>
+                    <strong>IoT Hub:</strong> <span id="iotStatus" style="color: #00c851;">Connected</span>
+                </div>
+                <div>
+                    <strong>Stream Analytics:</strong> <span id="streamStatus" style="color: #00c851;">Running</span>
+                </div>
+                <div>
+                    <strong>Cosmos DB:</strong> <span id="cosmosStatus" style="color: #00c851;">Active</span>
+                </div>
+                <div>
+                    <strong>AI Functions:</strong> <span id="aiStatus" style="color: #00c851;">Online</span>
+                </div>
+            </div>
+            <div class="data-source" id="dataSourceInfo">Data source: Azure Cosmos DB via Stream Analytics</div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration - Replace with your actual Function App URL
+        const FUNCTION_APP_URL = 'https://func-traffic-[yourname].azurewebsites.net';
+        const API_ENDPOINT = `${FUNCTION_APP_URL}/api/GetTrafficInsights`;
+        
+        // Global variables
+        let map, predictionChart, speedChart;
+        let markers = {};
+        let currentData = null;
+
+        // Initialize Leaflet Map
+        function initializeMap() {
+            map = L.map('trafficMap').setView([40.7128, -74.0060], 11);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Sensor locations
+            const sensorLocations = [
+                {id: 'TrafficSensor-MainSt', name: 'Main Street', lat: 40.7260, lng: -74.0060},
+                {id: 'TrafficSensor-Highway101', name: 'Highway 101', lat: 40.7128, lng: -74.0200},
+                {id: 'TrafficSensor-Downtown', name: 'Downtown', lat: 40.7000, lng: -74.0100}
+            ];
+
+            // Create markers for each sensor
+            sensorLocations.forEach(sensor => {
+                markers[sensor.id] = L.circleMarker([sensor.lat, sensor.lng], {
+                    radius: 15,
+                    fillColor: '#00c851',
+                    color: '#fff',
+                    weight: 3,
+                    opacity: 1,
+                    fillOpacity: 0.8
+                }).addTo(map).bindPopup(`<b>${sensor.name}</b><br>Loading data...`);
+            });
+        }
+
+        // Initialize Charts
+        function initializeCharts() {
+            // Prediction Chart
+            const predictionCtx = document.getElementById('predictionChart').getContext('2d');
+            predictionChart = new Chart(predictionCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Predicted Speed (km/h)',
+                        data: [],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' },
+                        title: { display: true, text: 'Next 30 Minutes Prediction' }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 80,
+                            title: { display: true, text: 'Speed (km/h)' }
+                        }
+                    }
+                }
+            });
+
+            // Speed Chart
+            const speedCtx = document.getElementById('speedChart').getContext('2d');
+            speedChart = new Chart(speedCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Main Street',
+                            data: [],
+                            borderColor: '#ff6b6b',
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Highway 101',
+                            data: [],
+                            borderColor: '#4ecdc4',
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Downtown',
+                            data: [],
+                            borderColor: '#45b7d1',
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'top' } },
+                    scales: { 
+                        y: { 
+                            beginAtZero: true, 
+                            max: 80,
+                            title: { display: true, text: 'Speed (km/h)' }
+                        } 
+                    }
+                }
+            });
+        }
+
+        // Fetch AI-enhanced traffic data
+        async function fetchTrafficData() {
+            try {
+                const response = await fetch(API_ENDPOINT);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('Fetched data:', data);
+                return data;
+            } catch (error) {
+                console.error('Error fetching traffic data:', error);
+                
+                // Update status indicators
+                document.getElementById('aiStatus').style.color = '#ff4444';
+                document.getElementById('aiStatus').textContent = 'Offline';
+                document.getElementById('dataSourceInfo').textContent = `Error: ${error.message}`;
+                
+                return null;
+            }
+        }
+
+        // Update dashboard with new data
+        function updateDashboard(data) {
+            if (!data || !data.sensors) {
+                console.error('Invalid data received');
+                return;
+            }
+
+            currentData = data;
+
+            // Update main metrics
+            updateMainMetrics(data);
+            
+            // Update map markers
+            updateMapMarkers(data.sensors);
+            
+            // Update charts
+            updateCharts(data);
+            
+            // Update AI sections
+            updateAIRecommendations(data.recommendations || []);
+            updateAnomalyDetection(data.anomalies || []);
+            updateCitywideSummary(data.citywideSummary || {});
+            updateSensorDetails(data.sensors);
+
+            // Update alerts
+            updateAlerts(data);
+
+            // Update data source info
+            document.getElementById('dataSourceInfo').textContent = 
+                `Data source: ${data.dataSource} • Last updated: ${new Date().toLocaleTimeString()}`;
+        }
+
+        // Update main metrics
+        function updateMainMetrics(data) {
+            const { aiInsights, sensors } = data;
+            
+            if (aiInsights) {
+                document.getElementById('trafficHealth').textContent = aiInsights.trafficEfficiencyScore || '85';
+                const healthEl = document.getElementById('healthStatus');
+                healthEl.textContent = aiInsights.overallTrafficHealth || 'Good';
+                healthEl.className = `status-${(aiInsights.overallTrafficHealth || 'good').toLowerCase()}`;
+                
+                document.getElementById('avgSpeed').textContent = aiInsights.averageSpeed || '45';
+                document.getElementById('congestionHotspots').textContent = aiInsights.congestionHotspots || '0';
+                document.getElementById('carbonImpact').textContent = aiInsights.carbonEmissionIndex || 'Low';
+            }
+            
+            if (sensors) {
+                document.getElementById('activeSensors').textContent = sensors.length;
+                const totalVehicles = sensors.reduce((sum, s) => sum + s.vehicleCount, 0);
+                document.getElementById('totalVehicles').textContent = totalVehicles.toLocaleString();
+            }
+        }
+
+        // Update map markers
+        function updateMapMarkers(sensors) {
+            sensors.forEach(sensor => {
+                const marker = markers[sensor.sensorId];
+                if (marker) {
+                    // Update marker color based on congestion level
+                    const color = sensor.congestionLevel === 'Heavy' ? '#ff4444' : 
+                                sensor.congestionLevel === 'Moderate' ? '#ffaa00' : '#00c851';
+                    
+                    marker.setStyle({ fillColor: color });
+                    
+                    // Update popup content
+                    marker.setPopupContent(`
+                        <div style="min-width: 200px;">
+                            <h3>${sensor.location}</h3>
+                            <div style="margin: 10px 0;">
+                                <strong>Speed:</strong> ${sensor.speed} km/h<br>
+                                <strong>Vehicles:</strong> ${sensor.vehicleCount}<br>
+                                <strong>Congestion:</strong> <span style="color: ${color};">${sensor.congestionLevel}</span><br>
+                                <strong>AI Score:</strong> ${sensor.congestionScore || 'N/A'}/100
+                            </div>
+                            ${sensor.isAnomaly ? '<div style="color: #ff4444; font-weight: bold;">⚠️ Anomaly Detected</div>' : ''}
+                        </div>
+                    `);
+                }
+            });
+        }
+
+        // Update charts
+        function updateCharts(data) {
+            // Update prediction chart
+            if (data.predictions && data.predictions.length > 0) {
+                const firstPrediction = data.predictions[0];
+                predictionChart.data.labels = firstPrediction.timeFrames || [];
+                predictionChart.data.datasets[0].data = firstPrediction.speedPredictions || [];
+                predictionChart.update('none');
+            }
+
+            // Update speed chart with current readings
+            if (data.sensors && data.sensors.length >= 3) {
+                const currentTime = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                // Add new data point
+                speedChart.data.labels.push(currentTime);
+                speedChart.data.datasets[0].data.push(data.sensors[0].speed);
+                speedChart.data.datasets[1].data.push(data.sensors[1].speed);
+                speedChart.data.datasets[2].data.push(data.sensors[2].speed);
+                
+                // Keep only last 10 data points
+                if (speedChart.data.labels.length > 10) {
+                    speedChart.data.labels.shift();
+                    speedChart.data.datasets.forEach(dataset => dataset.data.shift());
+                }
+                
+                speedChart.update('none');
+            }
+        }
+
+        // Update AI recommendations
+        function updateAIRecommendations(recommendations) {
+            const container = document.getElementById('aiRecommendations');
+            
+            if (!recommendations || recommendations.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: #666;">No recommendations at this time</div>';
+                return;
+            }
+            
+            container.innerHTML = recommendations.map(rec => `
+                <div class="recommendation ${rec.priority.toLowerCase()}">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                        <strong style="color: #333;">${rec.priority} PRIORITY</strong>
+                        <span style="background: #f8f9fa; padding: 4px 8px; border-radius: 12px; font-size: 0.8em;">
+                            ${rec.aiConfidence}% confidence
+                        </span>
+                    </div>
+                    <div style="margin-bottom: 8px; color: #555;">
+                        <strong>${rec.category}:</strong> ${rec.action}
+                    </div>
+                    <div style="color: #666; font-size: 0.9em;">
+                        <strong>Expected Impact:</strong> ${rec.expectedImpact}
+                    </div>
+                    ${rec.estimatedCost ? `<div style="color: #666; font-size: 0.9em;">
+                        <strong>Cost:</strong> ${rec.estimatedCost}
+                    </div>` : ''}
+                </div>
+            `).join('');
+        }
+
+        // Update anomaly detection
+        function updateAnomalyDetection(anomalies) {
+            const container = document.getElementById('anomalyDetection');
+            
+            if (!anomalies || anomalies.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: #00c851; font-weight: bold;">✅ No anomalies detected</div>';
+                return;
+            }
+            
+            container.innerHTML = anomalies.map(anomaly => `
+                <div class="anomaly-alert">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <strong style="color: #d32f2f;">${anomaly.severity} SEVERITY</strong>
+                        <span style="font-size: 0.8em; color: #666;">
+                            ${new Date(anomaly.detectedAt).toLocaleTimeString()}
+                        </span>
+                    </div>
+                    <div style="margin-bottom: 8px;">
+                        <strong>Location:</strong> ${anomaly.location}
+                    </div>
+                    <div style="margin-bottom: 8px;">
+                        <strong>Type:</strong> ${anomaly.anomalyType}
+                    </div>
+                    <div style="color: #666; font-size: 0.9em;">
+                        <strong>Recommended Action:</strong> ${anomaly.recommendedAction}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Update citywide summary
+        function updateCitywideSummary(summary) {
+            const container = document.getElementById('citywideSummary');
+            
+            if (!summary || Object.keys(summary).length === 0) {
+                container.innerHTML = '<div class="loading">No summary data available</div>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <div style="display: grid; gap: 15px;">
+                    <div>
+                        <strong>Active Vehicles:</strong> ${(summary.totalActiveVehicles || 0).toLocaleString()}
+                    </div>
+                    <div>
+                        <strong>Average City Speed:</strong> ${summary.averageCitySpeed || 'N/A'} km/h
+                    </div>
+                    <div>
+                        <strong>Traffic Health Index:</strong> ${summary.trafficHealthIndex || 'N/A'}/100
+                    </div>
+                    ${summary.congestionDistribution ? `
+                    <div>
+                        <strong>Congestion Distribution:</strong><br>
+                        <div style="margin-left: 15px; margin-top: 5px;">
+                            🔴 Heavy: ${summary.congestionDistribution.Heavy || 0} locations<br>
+                            🟡 Moderate: ${summary.congestionDistribution.Moderate || 0} locations<br>
+                            🟢 Light: ${summary.congestionDistribution.Light || 0} locations
+                        </div>
+                    </div>` : ''}
+                    ${summary.estimatedCommuteTimes ? `
+                    <div>
+                        <strong>Est. Commute Times:</strong><br>
+                        <div style="margin-left: 15px; margin-top: 5px;">
+                            Cross-city: ${summary.estimatedCommuteTimes.crossCity} min<br>
+                            Downtown: ${summary.estimatedCommuteTimes.downtown} min<br>
+                            Suburban: ${summary.estimatedCommuteTimes.suburban} min
+                        </div>
+                    </div>` : ''}
+                    <div>
+                        <strong>Air Quality Impact:</strong> 
+                        <span style="color: ${summary.airQualityImpact === 'Low Impact' ? '#00c851' : 
+                                          summary.airQualityImpact === 'Moderate Impact' ? '#ffaa00' : '#ff4444'};">
+                            ${summary.airQualityImpact || 'Unknown'}
+                        </span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Update sensor details
+        function updateSensorDetails(sensors) {
+            const container = document.getElementById('sensorDetails');
+            
+            if (!sensors || sensors.length === 0) {
+                container.innerHTML = '<div class="loading">No sensor data available</div>';
+                return;
+            }
+            
+            container.innerHTML = sensors.map(sensor => `
+                <div class="sensor-detail">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3>${sensor.location}</h3>
+                        <span style="padding: 4px 12px; border-radius: 20px; font-size: 0.85em; color: white; background: ${
+                            sensor.congestionLevel === 'Heavy' ? '#ff4444' : 
+                            sensor.congestionLevel === 'Moderate' ? '#ffaa00' : '#00c851'
+                        };">
+                            ${sensor.congestionLevel}
+                        </span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+                        <div>
+                            <div style="color: #666; font-size: 0.9em;">Current Speed</div>
+                            <div style="font-size: 1.8em; font-weight: bold; color: #667eea;">${sensor.speed} km/h</div>
+                        </div>
+                        <div>
+                            <div style="color: #666; font-size: 0.9em;">Vehicle Count</div>
+                            <div style="font-size: 1.8em; font-weight: bold; color: #667eea;">${sensor.vehicleCount}</div>
+                        </div>
+                        <div>
+                            <div style="color: #666; font-size: 0.9em;">AI Score</div>
+                            <div style="font-size: 1.8em; font-weight: bold; color: #667eea;">${sensor.congestionScore || 'N/A'}</div>
+                        </div>
+                        <div>
+                            <div style="color: #666; font-size: 0.9em;">Trend</div>
+                            <div style="font-size: 1.2em; font-weight: bold; color: ${
+                                sensor.predictedTrend === 'Improving' ? '#00c851' :
+                                sensor.predictedTrend === 'Deteriorating' ? '#ff4444' : '#ffaa00'
+                            };">${sensor.predictedTrend || 'Stable'}</div>
+                        </div>
+                    </div>
+                    ${sensor.isAnomaly ? `
+                    <div style="margin-top: 15px; padding: 10px; background: #ffebee; border-left: 4px solid #f44336; border-radius: 4px;">
+                        <strong style="color: #d32f2f;">⚠️ Anomaly Detected</strong> - This sensor is reporting unusual values
+                    </div>` : ''}
+                    <div style="margin-top: 10px; color: #666; font-size: 0.85em;">
+                        Last updated: ${new Date(sensor.timestamp).toLocaleString()}
+                        ${sensor.dataPoints ? ` • ${sensor.dataPoints} data points processed` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Update alerts
+        function updateAlerts(data) {
+            const alertBanner = document.getElementById('alertBanner');
+            const alertMessage = document.getElementById('alertMessage');
+            
+            let hasAlert = false;
+            let alertText = '';
+            
+            // Check for critical recommendations
+            if (data.recommendations) {
+                const criticalRecs = data.recommendations.filter(r => r.priority === 'CRITICAL');
+                if (criticalRecs.length > 0) {
+                    hasAlert = true;
+                    alertText = criticalRecs[0].action;
+                }
+            }
+            
+            // Check for anomalies
+            if (!hasAlert && data.anomalies && data.anomalies.length > 0) {
+                hasAlert = true;
+                alertText = `${data.anomalies.length} traffic anomal${data.anomalies.length === 1 ? 'y' : 'ies'} detected`;
+            }
+            
+            // Check for high congestion
+            if (!hasAlert && data.sensors) {
+                const heavyCongestion = data.sensors.filter(s => s.congestionLevel === 'Heavy');
+                if (heavyCongestion.length > 0                ) {
+                    hasAlert = true;
+                    alertText = `Heavy congestion detected at ${heavyCongestion.map(s => s.location).join(', ')}`;
+                }
+            }
+            
+            if (hasAlert) {
+                alertBanner.classList.add('active');
+                alertMessage.textContent = alertText;
+            } else {
+                alertBanner.classList.remove('active');
+            }
+        }
+
+        // Update data periodically
+        async function updateData() {
+            try {
+                const data = await fetchTrafficData();
+                if (data) {
+                    updateDashboard(data);
+                    
+                    // Update connection status
+                    document.getElementById('cosmosStatus').style.color = '#00c851';
+                    document.getElementById('cosmosStatus').textContent = 'Active';
+                    document.getElementById('aiStatus').style.color = '#00c851';
+                    document.getElementById('aiStatus').textContent = 'Online';
+                }
+            } catch (error) {
+                console.error('Error updating data:', error);
+                
+                // Update status indicators to show error
+                document.getElementById('cosmosStatus').style.color = '#ff4444';
+                document.getElementById('cosmosStatus').textContent = 'Error';
+                document.getElementById('aiStatus').style.color = '#ff4444';
+                document.getElementById('aiStatus').textContent = 'Offline';
+            }
+        }
+
+        // Add blinking animation for live indicator
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes blink {
+                0%, 50% { opacity: 1; }
+                51%, 100% { opacity: 0.3; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Initializing Smart Traffic Dashboard...');
+            
+            // Initialize map and charts
+            initializeMap();
+            initializeCharts();
+            
+            // Initial data load
+            updateData();
+            
+            // Update data every 10 seconds
+            setInterval(updateData, 10000);
+            
+            // Update time display
+            setInterval(() => {
+                document.title = `🚦 Traffic Dashboard - ${new Date().toLocaleTimeString()}`;
+            }, 1000);
+            
+            console.log('Dashboard initialized successfully!');
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            if (map) {
+                setTimeout(() => {
+                    map.invalidateSize();
+                }, 100);
+            }
+        });
+
+        // Add error handling for charts
+        Chart.defaults.plugins.legend.onClick = function(e, legendItem, legend) {
+            const index = legendItem.datasetIndex;
+            const chart = legend.chart;
+            const meta = chart.getDatasetMeta(index);
+            
+            meta.hidden = meta.hidden === null ? !chart.data.datasets[index].hidden : null;
+            chart.update();
+        };
+
+        // Performance monitoring
+        let performanceMetrics = {
+            loadTime: performance.now(),
+            updateCount: 0,
+            errorCount: 0
+        };
+
+        // Log performance metrics
+        setInterval(() => {
+            console.log('Dashboard Performance:', {
+                uptime: Math.round((performance.now() - performanceMetrics.loadTime) / 1000) + 's',
+                updates: performanceMetrics.updateCount,
+                errors: performanceMetrics.errorCount,
+                memoryUsage: navigator.memory ? Math.round(navigator.memory.usedJSHeapSize / 1024 / 1024) + 'MB' : 'N/A'
+            });
+        }, 60000); // Every minute
+    </script>
+</body>
+</html>
