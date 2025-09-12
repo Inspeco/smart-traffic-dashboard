@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🚦 AI-Powered Smart City Traffic Management</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
     <style>
@@ -307,20 +306,6 @@
             <div id="trafficMap"></div>
         </div>
 
-        <!-- Charts Section -->
-        <div class="two-cols">
-            <div class="card">
-                <h2>📊 AI Traffic Predictions <span class="ai-badge">AI</span></h2>
-                <canvas id="predictionChart" height="300"></canvas>
-                <div class="data-source">ML Model: Neural Traffic Predictor v2.1</div>
-            </div>
-            
-            <div class="card">
-                <h2>⚡ Real-time Speed Analysis</h2>
-                <canvas id="speedChart" height="300"></canvas>
-            </div>
-        </div>
-
         <!-- AI Insights Section -->
         <div class="three-cols">
             <div class="card">
@@ -370,13 +355,12 @@
         // Configuration
         const CONFIG = {
             FUNCTION_APP_URL: 'https://func-traffic-[yourname].azurewebsites.net',
-            UPDATE_INTERVAL: 10000,
-            CHART_DATA_POINTS: 10
+            UPDATE_INTERVAL: 10000
         };
         CONFIG.API_ENDPOINT = `${CONFIG.FUNCTION_APP_URL}/api/GetTrafficInsights`;
 
         // Global variables
-        let map, predictionChart, speedChart;
+        let map;
         let markers = {};
         let currentData = null;
 
@@ -430,82 +414,6 @@
             });
         }
 
-        // Initialize Charts
-        function initializeCharts() {
-            // Prediction Chart
-            const predictionCtx = document.getElementById('predictionChart').getContext('2d');
-            predictionChart = new Chart(predictionCtx, {
-                type: 'line',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        label: 'Predicted Speed (km/h)',
-                        data: [],
-                        borderColor: '#667eea',
-                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'top' },
-                        title: { display: true, text: 'Next 30 Minutes Prediction' }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 80,
-                            title: { display: true, text: 'Speed (km/h)' }
-                        }
-                    }
-                }
-            });
-
-            // Speed Chart
-            const speedCtx = document.getElementById('speedChart').getContext('2d');
-            speedChart = new Chart(speedCtx, {
-                type: 'line',
-                data: {
-                    labels: [],
-                    datasets: [
-                        {
-                            label: 'Main Street',
-                            data: [],
-                            borderColor: '#ff6b6b',
-                            tension: 0.3
-                        },
-                        {
-                            label: 'Highway 101',
-                            data: [],
-                            borderColor: '#4ecdc4',
-                            tension: 0.3
-                        },
-                        {
-                            label: 'Downtown',
-                            data: [],
-                            borderColor: '#45b7d1',
-                            tension: 0.3
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'top' } },
-                    scales: { 
-                        y: { 
-                            beginAtZero: true, 
-                            max: 80,
-                            title: { display: true, text: 'Speed (km/h)' }
-                        } 
-                    }
-                }
-            });
-        }
-
         // Fetch AI-enhanced traffic data
         async function fetchTrafficData() {
             try {
@@ -544,9 +452,6 @@
             
             // Update map markers
             updateMapMarkers(data.sensors);
-            
-            // Update charts
-            updateCharts(data);
             
             // Update AI sections
             updateAIRecommendations(data.recommendations || []);
@@ -610,36 +515,6 @@
                     `);
                 }
             });
-        }
-
-        // Update charts
-        function updateCharts(data) {
-            // Update prediction chart
-            if (data.predictions && data.predictions.length > 0) {
-                const firstPrediction = data.predictions[0];
-                predictionChart.data.labels = firstPrediction.timeFrames || [];
-                predictionChart.data.datasets[0].data = firstPrediction.speedPredictions || [];
-                predictionChart.update('none');
-            }
-
-            // Update speed chart with current readings
-            if (data.sensors && data.sensors.length >= 3) {
-                const currentTime = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                
-                // Add new data point
-                speedChart.data.labels.push(currentTime);
-                speedChart.data.datasets[0].data.push(data.sensors[0].speed);
-                speedChart.data.datasets[1].data.push(data.sensors[1].speed);
-                speedChart.data.datasets[2].data.push(data.sensors[2].speed);
-                
-                // Keep only last N data points
-                if (speedChart.data.labels.length > CONFIG.CHART_DATA_POINTS) {
-                    speedChart.data.labels.shift();
-                    speedChart.data.datasets.forEach(dataset => dataset.data.shift());
-                }
-                
-                speedChart.update('none');
-            }
         }
 
         // Update AI recommendations
@@ -861,9 +736,8 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Initializing Smart Traffic Dashboard...');
             
-            // Initialize map and charts
+            // Initialize map
             initializeMap();
-            initializeCharts();
             
             // Initial data load
             updateData();
@@ -887,16 +761,6 @@
                 }, 100);
             }
         });
-
-        // Add error handling for charts
-        Chart.defaults.plugins.legend.onClick = function(e, legendItem, legend) {
-            const index = legendItem.datasetIndex;
-            const chart = legend.chart;
-            const meta = chart.getDatasetMeta(index);
-            
-            meta.hidden = meta.hidden === null ? !chart.data.datasets[index].hidden : null;
-            chart.update();
-        };
     </script>
 </body>
 </html>
