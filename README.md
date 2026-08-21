@@ -14,9 +14,9 @@ The dashboard is the front-end of a full IoT-style data pipeline:
 
 
 
-- **Sensors (simulated):** emulated intersection sensors publishing vehicle count, occupancy and average speed at fixed intervals over MQTT.
-- **Broker:** MQTT broker (EMQX / HiveMQ) handling publish/subscribe fan-out on `traffic/#` topics.
-- **Ingestion & API:** a subscriber that consumes the topics, aggregates the data, and exposes it to the dashboard.
+- **Sensors (simulated):** `simulator/sensor.py` emulates intersection sensors, publishing vehicle count, occupancy and average speed at fixed intervals over MQTT (`traffic/#`).
+- **Broker:** Eclipse Mosquitto (dockerised) handling publish/subscribe fan-out on `traffic/#`.
+- **Ingestion & API:** `ingestion/subscriber.py` subscribes to the topics, keeps the latest reading per junction, and exposes an HTTP API (`/api/traffic`, `/api/health`).
 - **Dashboard:** this repo — a single-page app rendering live congestion, per-junction stats and alerts.
 
 ## Cloud & networking (Azure)
@@ -35,13 +35,29 @@ For a production deployment of the full pipeline, the design keeps the network b
 ```
 .
 ├── index.html                       # Dashboard (single page)
+├── simulator/                       # MQTT traffic-sensor simulator (Python)
+│   └── sensor.py
+├── ingestion/                       # MQTT subscriber + HTTP API (Python)
+│   └── subscriber.py
+├── broker/
+│   └── mosquitto.conf               # MQTT broker config
+├── docker-compose.yml               # broker + simulator + ingestion
 └── .github/workflows/
     └── azure-static-web-apps-*.yml  # Azure SWA CI/CD build & deploy
 ```
 
 ## Run locally
 
-It's a static single-page app — open `index.html`, or serve it:
+The full pipeline (broker + simulator + ingestion) runs with Docker Compose:
+
+```bash
+docker compose up --build
+```
+
+- MQTT broker: `localhost:1883` (topics `traffic/#`)
+- Ingestion API: `http://localhost:8000/api/traffic`
+
+Or just the dashboard — it's a static single-page app:
 
 ```bash
 python3 -m http.server 8080
@@ -49,11 +65,11 @@ python3 -m http.server 8080
 
 ## Deployment
 
-Pushing to `main` triggers the Azure Static Web Apps workflow, which builds and publishes the site to Azure. Config lives in `.github/workflows/azure-static-web-apps-*.yml`.
+Pushing to `main` triggers the Azure Static Web Apps workflow, which builds and publishes the dashboard to Azure. Config lives in `.github/workflows/azure-static-web-apps-*.yml`.
 
 ## Roadmap
 
-- [ ] Add the MQTT traffic-sensor simulator (Python) to the repo
-- [ ] Broker + ingestion subscriber as a Docker Compose stack
+- [x] MQTT traffic-sensor simulator (Python)
+- [x] Broker + ingestion subscriber as a Docker Compose stack
 - [ ] Live updates to the dashboard over WebSocket/SSE
-- [ ] Time-series storage for historical congestion trends
+- [ ] Time-series storage (e.g. InfluxDB/TimescaleDB) for historical congestion trends

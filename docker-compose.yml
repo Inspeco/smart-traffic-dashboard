@@ -1,0 +1,40 @@
+services:
+  broker:
+    image: eclipse-mosquitto:2
+    container_name: traffic-broker
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./broker/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mosquitto_sub -t '$$SYS/#' -C 1 -W 3"]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+
+  simulator:
+    build: ./simulator
+    container_name: traffic-simulator
+    environment:
+      MQTT_BROKER: broker
+      MQTT_PORT: "1883"
+      SIM_INTERVAL: "5"
+    depends_on:
+      broker:
+        condition: service_healthy
+    restart: unless-stopped
+
+  ingestion:
+    build: ./ingestion
+    container_name: traffic-ingestion
+    environment:
+      MQTT_BROKER: broker
+      MQTT_PORT: "1883"
+      INGEST_HOST: "0.0.0.0"
+      INGEST_PORT: "8000"
+    ports:
+      - "8000:8000"
+    depends_on:
+      broker:
+        condition: service_healthy
+    restart: unless-stopped
