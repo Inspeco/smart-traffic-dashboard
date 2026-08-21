@@ -10,13 +10,9 @@ Urban traffic is noisy and hard to reason about without good data. This project 
 
 The dashboard is the front-end of a full IoT-style data pipeline:
 
-```
-┌───────────────┐     MQTT      ┌──────────┐     ┌──────────────┐     ┌──────────────────┐
-│ Traffic       │  (topic /traffic/#) │ Broker │     │ Ingestion /  │     │ Dashboard        │
-│ sensors       ├──────────────►│  EMQX   ├─────►│ aggregation  ├─────►│ (Azure Static    │
-│ (simulated)   │               │  /MQTT  │     │ + API        │     │  Web Apps)       │
-└───────────────┘               └──────────┘     └──────────────┘     └──────────────────┘
-```
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/0995fde0-23e7-44b0-81df-0d4be347b790" />
+
+
 
 - **Sensors (simulated):** emulated intersection sensors publishing vehicle count, occupancy and average speed at fixed intervals over MQTT.
 - **Broker:** MQTT broker (EMQX / HiveMQ) handling publish/subscribe fan-out on `traffic/#` topics.
